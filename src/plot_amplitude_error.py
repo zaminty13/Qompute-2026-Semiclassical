@@ -10,7 +10,8 @@ from qiskit.quantum_info import Operator, average_gate_fidelity
 from pulses import (
     PAULI_X,
     analytic_x_fidelity,
-    average_fidelity,
+    average_infidelity,
+    require_close,
     basic_x_pulse,
     small_error_infidelity,
     x_pulse_unitary,
@@ -41,7 +42,7 @@ SERIES_COLORS = (
 
 def simulated_infidelities(duration_ns, amplitude_errors):
     unitaries = x_pulse_unitary(duration_ns, amplitude_errors)
-    return 1.0 - average_fidelity(unitaries, PAULI_X)
+    return average_infidelity(unitaries, PAULI_X)
 
 
 def qiskit_infidelities(duration_ns, amplitude_errors):
@@ -55,16 +56,8 @@ def qiskit_infidelities(duration_ns, amplitude_errors):
     ])
 
 
-def require_close(name, actual, expected, atol=1e-12):
-    worst = np.max(np.abs(actual - expected))
-    if worst > atol:
-        raise RuntimeError(
-            f"Simulated infidelity disagrees with {name}: "
-            f"max difference {worst:.2e}."
-        )
-
-
-def plot_infidelity_curves(amplitude_errors, curves, title):
+def plot_infidelity_curves(amplitude_errors, curves, title, *,
+                           xlabel="Drive amplitude error (%)", xscale=100, tick_step=5):
     if len(curves) > len(SERIES_COLORS):
         raise ValueError(f"At most {len(SERIES_COLORS)} curves are supported.")
 
@@ -73,7 +66,7 @@ def plot_infidelity_curves(amplitude_errors, curves, title):
 
     for (label, values, linestyle), color in zip(curves, SERIES_COLORS):
         ax.plot(
-            amplitude_errors * 100,
+            amplitude_errors * xscale,
             values,
             label=label,
             color=color,
@@ -84,13 +77,13 @@ def plot_infidelity_curves(amplitude_errors, curves, title):
         )
 
     ax.set(
-        xlabel="Drive amplitude error (%)",
+        xlabel=xlabel,
         ylabel="Average gate infidelity (1 − F)",
-        xlim=(amplitude_errors[0] * 100, amplitude_errors[-1] * 100),
+        xlim=(amplitude_errors[0] * xscale, amplitude_errors[-1] * xscale),
         ylim=(0, None),
     )
     ax.set_title(title, color=INK, loc="left", pad=12)
-    ax.xaxis.set_major_locator(MultipleLocator(5))
+    ax.xaxis.set_major_locator(MultipleLocator(tick_step))
 
     ax.set_axisbelow(True)
     ax.grid(True, color=GRIDLINE, linewidth=1, linestyle="-")
