@@ -1,0 +1,6 @@
+qiskit
+qiskit-aer
+qiskit-experiments
+numpy
+scipy
+matplotlib
