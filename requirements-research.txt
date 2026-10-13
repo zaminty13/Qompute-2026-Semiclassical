@@ -1,0 +1,3 @@
+# Existing team repo already has requirements-demo.txt + requirements.txt.
+-r requirements-demo.txt
+pandas

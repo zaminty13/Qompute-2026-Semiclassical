@@ -1,0 +1,193 @@
+"""PulseWise Research Lab -- additional Streamlit multipage view.
+
+Existing app.py / selector unaffected. Select Research Lab in the sidebar.
+"""
+from __future__ import annotations
+import sys
+from pathlib import Path
+import numpy as np
+import pandas as pd
+import plotly.graph_objects as go
+import streamlit as st
+
+ROOT=Path(__file__).resolve().parents[1]
+sys.path.insert(0,str(ROOT/'src'))
+from research_synthesis import Experiment, synthesize, uncertainty_points, evaluate
+from research_leakage import propagate
+
+st.set_page_config(page_title='PulseWise | Research Lab',page_icon='🧬',layout='wide')
+st.title('🧬 PulseWise / Research Lab')
+st.caption('TEAM SEMICLASSICAL · QOMPUTE 2026 · GRIDIUM-INSPIRED CONTROL SYNTHESIS')
+st.write('**Can an automatically designed gate pass a robustness threshold faster than BB1—and what happens when leakage becomes possible?**')
+st.info('The optimizer searches a two-level Lindblad simulation. The separate multilevel demonstration is an illustrative four-state surrogate, **not a validated Gridium device**. Qiskit Aer checks the same modeled channels, not actual hardware.')
+
+with st.sidebar:
+    st.header('Research configuration')
+    st.caption('Independent of settings on the classic selector page.')
+    amin=st.slider('Amplitude uncertainty ± (%)',1.,10.,5.,step=.5)
+    dmin=st.slider('Normalized detuning uncertainty ±',.005,.10,.04,step=.005,format='%.3f')
+    threshold=st.slider('Required worst sampled fidelity (%)',98.0,99.9,99.7,step=.1)
+    t1us=st.slider('T₁ (µs)',30,500,200,step=10)
+    t2us=st.slider('T₂ (µs)',20,500,150,step=10)
+    effort=st.select_slider('Optimization budget',options=['Quick (~15–40 sec)','Full (~30–90 sec)'])
+    st.caption('Unlike the classic page, this research case assumes zero-centered calibration uncertainty (no known 5% bias to recenter).')
+
+if t2us>2*t1us:
+    st.error('Choose a physical combination with T₂ ≤ 2T₁.'); st.stop()
+ex=Experiment(amplitude_center=0.,amplitude_width=amin/100,
+              detuning_width_over_omega=dmin,min_fidelity=threshold/100,
+              t1_ns=1000*t1us,t2_ns=1000*t2us)
+
+if st.button('🧪 Synthesize and stress-test new controls',type='primary'):
+    with st.spinner('Optimizing phased segments, then evaluating untouched holdout conditions...'):
+        try:
+            report=synthesize(ex,maxiter=4 if effort.startswith('Quick') else 16,
+                              popsize=3 if effort.startswith('Quick') else 5)
+            st.session_state['research_report']=report
+        except Exception as exc:
+            st.error(f'Synthesis failed: {exc}')
+
+report=st.session_state.get('research_report')
+if report is None:
+    # Instant reproducible opening view for judges. The Run button above always
+    # recomputes the analysis with current settings; no fake live calculation.
+    stored=ROOT/'results'/'research'/'optimization_report.json'
+    if stored.is_file():
+        import json
+        report=json.loads(stored.read_text(encoding='utf-8'))
+        st.caption('Showing a precomputed, reproducible demonstration. Press the synthesis button to rerun the optimizer for current settings.')
+if report is None:
+    st.markdown('### Ready to synthesize')
+    st.write('Press the button above. The algorithm explores five-piece rectangular control waveforms, limited to the same maximum drive strength as X/BB1/CORPSE, and compares them under matched decoherence and control errors.')
+    st.write('The work is CPU-based and may take tens of seconds. For reproducibility, use `python src/plot_research.py --quick` to generate a frozen report and shareable figures.')
+    st.stop()
+
+last=report['config']
+if (last['amplitude_width'] != ex.amplitude_width or
+    last['detuning_width_over_omega'] != ex.detuning_width_over_omega or
+    last['min_fidelity'] != ex.min_fidelity or
+    last['t1_ns'] != ex.t1_ns or last['t2_ns'] != ex.t2_ns):
+    st.warning('The displayed results are from your previous experiment. Rerun synthesis to reflect sidebar changes.')
+rex=Experiment(**last)
+rows=report['candidates']
+qualified=[r for r in rows if r['train_pass'] and r['heldout_pass']]
+winner=next((r for r in rows if r['name']==report['winner']),None)
+ref=next(r for r in rows if r['name']=='BB1')
+
+m1,m2,m3,m4=st.columns(4)
+m1.metric('Fastest passing candidate',winner['name'] if winner else 'None')
+m2.metric('Fastest duration',f"{winner['duration_ns']:.1f} ns" if winner else '—')
+m3.metric('BB1 reference duration','500.0 ns')
+m4.metric('Held-out tested points',str(report['n_heldout']))
+if winner is None:
+    st.error('No candidate passes both TRAIN and HOLDOUT under the current configuration. Do not claim an optimized winner.')
+elif winner['label']=='synthesized':
+    savings=100*(1-winner['duration_ns']/ref['duration_ns'])
+    st.success(f"Synthesized candidate passed the sampled fidelity threshold at {winner['duration_ns']:.1f} ns — {savings:.1f}% shorter than standard BB1 in this model. Both training and held-out checks passed.")
+else:
+    st.info('A reference control or calibration adjustment is fastest in this scenario. The optimizer did not show a validated speed advantage.')
+
+left,right=st.columns([1.45,1.])
+with left:
+    st.subheader('The speed–reliability frontier')
+    fig=go.Figure()
+    for r in rows:
+        kind=r['label']
+        marker_color=('#1AC1A3' if r['name']==report['winner'] else
+                      '#7291ad' if kind=='reference' else '#db9548')
+        fig.add_trace(go.Scatter(x=[r['duration_ns']],y=[100*r['heldout_worst']],
+            mode='markers',marker=dict(color=marker_color,size=17 if r['name']==report['winner'] else 11,
+                        symbol='star' if r['name']==report['winner'] else 'circle'),
+            name=r['name'],hovertemplate='%{text}<br>%{x:.2f} ns<br>%{y:.5f}%<extra></extra>',
+            text=[r['name']]))
+    fig.add_hline(y=100*rex.min_fidelity,line_dash='dash',line_color='#ef8c64',
+                  annotation_text=f'Threshold {100*rex.min_fidelity:.2f}%')
+    fig.update_layout(xaxis_title='Full control duration (ns)',
+                      yaxis_title='Held-out worst sampled fidelity (%)',
+                      height=430,legend=dict(orientation='h',y=-.25),margin=dict(l=10,r=10,t=10,b=10))
+    st.plotly_chart(fig,use_container_width=True)
+with right:
+    st.subheader('What was actually tested?')
+    view=[dict(Candidate=r['name'],Duration_ns=round(r['duration_ns'],2),
+               Nominal_pct=round(100*r['nominal_fidelity'],4),
+               TRAIN_worst_pct=round(100*r['train_worst'],4),
+               HOLDOUT_worst_pct=round(100*r['heldout_worst'],4),
+               Pass='YES' if r['train_pass'] and r['heldout_pass'] else 'NO')
+          for r in rows]
+    st.dataframe(pd.DataFrame(view),hide_index=True,use_container_width=True)
+    st.caption('TRAIN: nine corner/center conditions. HOLDOUT: 96 separate boundary/interior samples. Worst sampled does not certify a continuous bound.')
+    st.download_button('Download complete research report (JSON)',
+                       __import__('json').dumps(report,indent=2),
+                       file_name='pulsewise_research_report.json',mime='application/json')
+
+st.divider()
+st.header('1. Discover what the optimizer actually built')
+choices=[r['name'] for r in rows]
+default_index=choices.index(winner['name']) if winner else 0
+chosen=st.selectbox('Inspect candidate',choices,index=default_index)
+record=next(r for r in rows if r['name']==chosen)
+segments=record['segments']
+fig=go.Figure()
+t=0.
+for ang,phase in segments:
+    dt=float(ang)/rex.omega
+    for val,name,color in [(np.cos(phase),'Ωx/Ω','#1AC1A3'),
+                           (np.sin(phase),'Ωy/Ω','#b78aff')]:
+        fig.add_trace(go.Scatter(x=[t,t+dt],y=[val,val],mode='lines',
+                                 line=dict(color=color,width=5),showlegend=False,
+                                 hovertemplate=name+': %{y:.3f}<br>t=%{x:.1f} ns<extra></extra>'))
+    t+=dt
+fig.update_layout(height=260,xaxis_title='Time (ns)',yaxis_title='Normalized drive quadrature',
+                  yaxis_range=[-1.15,1.15],margin=dict(l=10,r=10,t=10,b=10))
+st.plotly_chart(fig,use_container_width=True)
+st.caption('Piecewise phase-controlled drive at **fixed Ω = π/100 ns**, identical maximum drive magnitude to the standard sequences. This is not an executable IBM backend pulse schedule.')
+
+st.header('2. The Gridium-inspired multilevel reality check')
+st.write('The ordinary selector assumes only logical states |0⟩ and |1⟩. This additional experiment introduces an off-resonant leakage level |2⟩ and a decoupled spectator |3⟩ (a four-dimensional unitary suitable for two Qiskit qubits).')
+a1,a2=st.columns([1,2])
+with a1:
+    alpha=st.slider('Toy-model anharmonicity α/Ω',-8.0,-1.0,-3.0,step=.25)
+    eta=st.slider('Leakage coupling relative to logical drive',0.0,2.0,float(np.sqrt(2)),step=.05)
+    amp=st.slider('Actual amplitude error for leakage run (%)',-10.,10.,0.,step=.5)
+    det=st.slider('Actual detuning Δ/Ω for leakage run',-.10,.10,0.,step=.005)
+ml=propagate(segments,primitive_ns=rex.primitive_ns,
+             anharmonicity_over_omega=alpha,coupling_ratio=eta,
+             amplitude_error=amp/100,detuning_over_omega=det)
+with a2:
+    r1,r2,r3=st.columns(3)
+    r1.metric('Unconditional logical fidelity',f"{100*ml['fidelity_unconditional']:.2f}%")
+    r2.metric('Final leakage',f"{100*ml['final_leakage']:.2f}%")
+    r3.metric('Peak leakage',f"{100*ml['peak_leakage']:.2f}%")
+    fig=go.Figure()
+    fig.add_trace(go.Scatter(x=ml['times_ns'],y=np.array(ml['mean_leakage'])*100,
+             name='Mean leakage',line=dict(color='#f5a764',width=3)))
+    fig.add_trace(go.Scatter(x=ml['times_ns'],y=np.array(ml['leak_state_population_if_zero'])*100,
+             name='Leakage |0⟩ input',line=dict(color='#5D9DEF',dash='dot')))
+    fig.add_trace(go.Scatter(x=ml['times_ns'],y=np.array(ml['leak_state_population_if_one'])*100,
+             name='Leakage |1⟩ input',line=dict(color='#b78aff',dash='dot')))
+    fig.update_layout(height=350,xaxis_title='Time (ns)',yaxis_title='Leakage population (%)',
+                      margin=dict(l=10,r=10,t=10,b=10))
+    st.plotly_chart(fig,use_container_width=True)
+st.warning('Important: This multilevel calculation is coherent (no T₁/T₂) and uses a **surrogate ladder**, not the physical Gridium Hamiltonian. Its absolute fidelities cannot be directly compared with the noisy two-level figures above. The lesson is that a two-level winner can fail when leakage is introduced.')
+
+st.header('3. Qiskit: circuit checks of the model')
+c1,c2=st.columns(2)
+with c1:
+    if st.button('▶ Verify synthesized single-qubit channel (six states)'):
+        try:
+            from research_qiskit import six_state_aer_check
+            with st.spinner('Running six Qiskit Aer circuits...'):
+                q=six_state_aer_check(segments,rex,shots=1024)
+            st.write(f"Qiskit predicted {100*q['predicted_fidelity']:.4f}% vs shot estimate {100*q['shot_estimate']:.4f}% ± {100*q['shot_standard_error']:.3f} pp (approx. 1σ).")
+            st.code(str(q['circuits'][0].draw(output='text')))
+        except Exception as exc: st.error(str(exc))
+with c2:
+    if st.button('▶ Verify multilevel leakage using two-qubit Aer'):
+        try:
+            from research_leakage import qiskit_sample_leakage
+            with st.spinner('Running two Qiskit Aer circuits...'):
+                q=qiskit_sample_leakage(ml['unitary'],shots=4096)
+            st.write(f"Exact final leakage {100*q['exact_mean_leakage']:.3f}% vs Aer shot estimate {100*q['estimated_mean_leakage']:.3f}%.")
+            st.code(str(q['circuits'][0].draw(output='text')))
+        except Exception as exc: st.error(str(exc))
+st.caption('Neither Qiskit check validates a hardware pulse schedule. They independently execute circuits using the same mathematically modeled channels/unitaries. Real hardware and an experimentally calibrated Hamiltonian would be required for physical validation.')
