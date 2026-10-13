@@ -132,19 +132,40 @@ st.caption('A finite sample can reveal failures but cannot certify every point i
 
 st.divider()
 st.header('4. Qiskit Aer circuit demonstration')
-st.write('The numerical comparisons above are exact model-based predictions. Aer is used to execute explicit noisy quantum circuits and independently check **sampling** against those predicted probabilities.')
-st.caption('The Aer circuits are constructed from the same mathematical noisy channels; consistency does not validate a calibrated hardware pulse schedule or independent physical model.')
-if st.button('▶ Run 45 ideal/noisy/suppressed Aer circuits',type='primary'):
+st.write('Verify the **same 32-X-gate identity experiment** highlighted above, alongside a separate three-bit parity task, using explicit noisy Qiskit Aer circuits.')
+st.caption('Frozen combined-error case: +5% amplitude error, Δ/Ω = +0.04, 2,048 shots per circuit. The 45 circuits are 5 pulse choices × (1 identity + 8 parity inputs). Aer samples the SAME modeled channels: this checks circuit implementation and shot statistics, not independent physics or hardware performance.')
+if st.button('▶ Run 45 Aer circuits (including X^32)',type='primary'):
     try:
-        with st.spinner('Running 45 circuits at 2,048 shots each...'):
-            q=qiskit_aer_circuit_checks(report)
-        st.success('Aer shot results consistent with mathematical predictions.' if q['all_consistent']
-                   else 'An Aer discrepancy was detected. Investigate before presenting.')
-        st.metric('Aer circuits',q['num_circuits'])
-        st.metric('Shots per circuit',q['shots_per_circuit'])
-        st.dataframe(pd.DataFrame(q['cases']),hide_index=True,use_container_width=True)
+        with st.spinner('Running 45 circuits at 2,048 shots each, X depth = 32...'):
+            st.session_state['option_b_aer_checks']=qiskit_aer_circuit_checks(report,depth=32)
     except Exception as error:
-        st.error(f'Aer not available or validation failed: {error}')
+        st.error(f'Aer execution failed: {error}')
+
+q=st.session_state.get('option_b_aer_checks')
+if q is not None:
+    checks=sum(bool(r['within_5_sigma_plus_sampling_floor']) for r in q['cases'])
+    if q['all_consistent']:
+        st.success('All Aer shot estimates satisfy the implemented model-consistency tolerance.')
+    else:
+        st.error('One or more Aer estimates exceed the model-consistency tolerance. Investigate before presenting.')
+    metric_cols=st.columns(3)
+    metric_cols[0].metric('Aer circuits executed',q['num_circuits'])
+    metric_cols[1].metric('Shots per circuit',q['shots_per_circuit'])
+    metric_cols[2].metric('Checks within tolerance',f"{checks}/{len(q['cases'])}")
+    st.markdown(f"**Known-answer identity comparison: X^{q.get('identity_depth',32)}**")
+    identity_rows=[{
+        'Pulse':('Ideal' if row['candidate']=='ideal' else LABELS[row['candidate']]),
+        'Model correct (%)':round(100*row['predicted_probability'],2),
+        'Aer correct (%)':round(100*row['aer_shot_probability'],2),
+        'Shot uncertainty (± pp, ~1σ)':round(100*row['estimated_shot_standard_error'],2),
+        'Within tolerance':'YES' if row['within_5_sigma_plus_sampling_floor'] else 'NO'}
+        for row in q['cases'] if row['task']=='identity']
+    st.dataframe(pd.DataFrame(identity_rows),use_container_width=True,hide_index=True)
+    with st.expander('View all 45 Aer circuit results (identity and parity)',expanded=False):
+        st.dataframe(pd.DataFrame(q['cases']),use_container_width=True,hide_index=True)
+        st.download_button('Download Aer results (CSV)',
+            pd.DataFrame(q['cases']).to_csv(index=False).encode('utf-8'),
+            file_name='pulsewise_aer_results.csv',mime='text/csv')
 
 st.divider()
 st.subheader('Scientific scope and reproducibility')

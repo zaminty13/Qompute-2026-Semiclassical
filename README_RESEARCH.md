@@ -8,28 +8,22 @@ multi-segment drives and leakage-aware multilevel diagnosis. It **does not** run
 reproduce, or validate the Gridium four-mode Hamiltonian. It **does not** claim
 an IBM hardware pulse implementation or an experimental gate fidelity.
 
-## Setup (inside the existing team repository)
+## Setup (from the merged Team Semiclassical repository)
 
-The zip is an **overlay**: unzip it from `Qompute-2026-Semiclassical/`. It adds
-`src/`, `tests/`, `pages/`, `results/research/`, and this README. It does not
-replace `app.py`, the original 41 tests, or Zayar's pulse/decoherence code.
+These research modules are already included in `main`; no ZIP overlay, old
+feature branch, or special installation process is needed.
 
 ```bash
-# Ensure you're on feature/interactive-demo
-pwd
-git status -sb
-# Unzip downloaded package into the repository root
-unzip -o ~/Downloads/PulseWise_Research_Upgrade.zip -d .
-# Uses existing requirements, plus existing Streamlit/Plotly
-python -m unittest discover -s tests -p 'test_*.py' -v
+python -m pip install -r requirements-research.txt
+python -m unittest discover -s tests -p "test_*.py" -v
 python src/plot_research.py --quick
 python -m streamlit run app.py
 ```
 
-Then choose **Research Lab** from the Streamlit left navigation. Do not push
-until all tests pass on the user's Qiskit/Python setup and the Research Lab
-renders without errors. Run `python src/plot_research.py` without `--quick` for
-higher-budget deterministic optimization if the time budget permits.
+Open **Research Lab** in Streamlit. The higher-budget `python src/plot_research.py`
+run explores further, but may find a different feasible candidate; avoid
+mixing newly generated optimization results with the frozen Option B report
+unless you explicitly document and retest the change.
 
 ## Scientifically meaningful main experiment
 
@@ -67,13 +61,13 @@ available to trivially recenter the waveform.
    These are finite-shot checks of the SAME assumed model, not independent
    calibration or actual hardware validation.
 
-**Example quick-run observation (container, SciPy):** the synthesized candidate
+**Frozen quick-run observation (SciPy; subsequently checked on the team’s Mac):** the synthesized candidate
 achieved about 345.68 ns, versus 500 ns for BB1, while its minimum fidelity was
 about 99.7027% over the nine training samples and 99.7193% across 96 disjoint
 held-out samples. A further 31×31 scan had minimum ~99.7027%. Thus the
 candidate was about 30.9% shorter *under this specific modeled scenario*.
-These are preliminary model calculations; reproduce and Qiskit-cross-check on
-Mac before putting exact numbers into the submitted video. Another noise box,
+These remain model calculations; the Mac-based tests and Qiskit circuit checks
+confirm implementation consistency, not hardware performance. Another noise box,
 coherence ratio or optimization seed may yield no advantage.
 
 ## Multilevel reality check: deliberate, clearly labeled surrogate
