@@ -67,7 +67,7 @@ This guide maps each important research claim to a specific **committed** figure
 - [Pulse selection map](../results/selector/pulse_selection_map.png)
 - [Coherence crossover](../results/selector/coherence_crossover.png)
 - [Fidelity versus duration](../results/selector/fidelity_duration.png)
-- [Amplitude and detuning comparisons](../results/decoherence/) 
+- [Amplitude and detuning comparisons](../results/decoherence/)
 
 ## Recording and interpretation checklist
 

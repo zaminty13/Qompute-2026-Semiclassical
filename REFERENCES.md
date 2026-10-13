@@ -18,15 +18,16 @@ Our pulse definitions are coded directly in [`src/pulses.py`](src/pulses.py); th
 
 ## Gridium: external research inspiration, not an implementation dependency
 
-7. **Hyunseong Kim** (2026), *The Superconducting Grid States Qubit*, University of California, Berkeley (doctoral thesis; advisor Irfan Siddiqi). [UC eScholarship record](https://escholarship.org/uc/item/8dj2b0kj).
-8. **Quantum Nanoelectronics Laboratory (qnl)**, [`qnl/gridium` public research repository](https://github.com/qnl/gridium), “Numerical Code and Processed Data for *Intrinsically Protected Grid States in a Superconducting Qubit*.” The repository identifies its code/data and shows a **CC0-1.0** license at the repository level. Use the upstream repository for its own source attribution and license terms.
+7. **Long B. Nguyen, Hyunseong Kim, Dat T. Le, Thomas Ersevim, et al.** (2025), “The superconducting grid-states qubit.” [arXiv:2509.14656](https://arxiv.org/abs/2509.14656). The public research preprint describing the gridium superconducting qubit; credited as conceptual background, not a component of our simulator.
+8. **Hyunseong Kim** (2026), *The Superconducting Grid States Qubit*, University of California, Berkeley (doctoral thesis; advisor Irfan Siddiqi). [UC eScholarship record](https://escholarship.org/uc/item/8dj2b0kj).
+9. **Quantum Nanoelectronics Laboratory (qnl)**, [`qnl/gridium` public research repository](https://github.com/qnl/gridium), “Numerical Code and Processed Data for *Intrinsically Protected Grid States in a Superconducting Qubit*.” The repository identifies its code/data and shows a **CC0-1.0** license at the repository level. Use the upstream repository for its own source attribution and license terms.
 
 **Relationship to PulseWise:** The Gridium work concerns protected superconducting grid-state qubits and motivated us to consider robustness and physics beyond an ideal two-level description. PulseWise does **not** import the Gridium simulator, reproduce its full circuit Hamiltonian, validate its gate results, or model an experimental Gridium device. Our four-level pedagogical surrogate is an independent **illustration of leakage sensitivity**, not a faithful device model. Citing a research source is different from reusing its code.
 
 ## Qiskit, tools, and challenge
 
-9. **Qiskit**: [Qiskit SDK](https://github.com/Qiskit/qiskit), [Qiskit Aer](https://github.com/Qiskit/qiskit-aer), and [Qiskit documentation](https://quantum.cloud.ibm.com/docs). These supply quantum-information operators, noisy channels, circuits and finite-shot simulations used in this project.
-10. **Qompute 2026 organizers**: [Official challenge brief](https://github.com/sandraalhames/Qompute-2026), Track 3, “Can We Trust a Noisy Quantum Computer?” Used to frame the known-answer, noisy-baseline and resource-cost comparison.
+10. **Qiskit**: [Qiskit SDK](https://github.com/Qiskit/qiskit), [Qiskit Aer](https://github.com/Qiskit/qiskit-aer), and [Qiskit documentation](https://quantum.cloud.ibm.com/docs). These supply quantum-information operators, noisy channels, circuits and finite-shot simulations used in this project.
+11. **Qompute 2026 organizers**: [Official challenge brief](https://github.com/sandraalhames/Qompute-2026), Track 3, “Can We Trust a Noisy Quantum Computer?” Used to frame the known-answer, noisy-baseline and resource-cost comparison.
 
 ## What is and is not attributable to others
 
