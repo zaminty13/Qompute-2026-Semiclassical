@@ -254,7 +254,7 @@ def build(*,quick=False,run_qiskit=False):
              'qiskit_aer_status':'not run (use --qiskit)'}
     if run_qiskit:
         print('Option B running 45 Qiskit Aer circuits ...',flush=True)
-        qr=qiskit_aer_circuit_checks(report)
+        qr=qiskit_aer_circuit_checks(report,depth=32)
         (OUT/'qiskit_aer_validation.json').write_text(json.dumps(qr,indent=2)+'\n',encoding='utf-8')
         summary['qiskit_aer_status']='passed' if qr['all_consistent'] else 'disagreement detected'
     (OUT/'research_summary.json').write_text(json.dumps(summary,indent=2)+'\n',encoding='utf-8')

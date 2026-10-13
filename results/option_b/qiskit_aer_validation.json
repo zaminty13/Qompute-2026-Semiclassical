@@ -1,6 +1,9 @@
 {
   "shots_per_circuit": 2048,
   "num_circuits": 45,
+  "identity_depth": 32,
+  "amplitude_error": 0.05,
+  "detuning_over_omega": 0.04,
   "cases": [
     {
       "candidate": "ideal",
@@ -87,9 +90,9 @@
       "candidate": "primitive",
       "task": "identity",
       "expected_bit": "0",
-      "predicted_probability": 0.0897675753093371,
-      "aer_shot_probability": 0.087890625,
-      "estimated_shot_standard_error": 0.0063164188691285355,
+      "predicted_probability": 0.6872774654794767,
+      "aer_shot_probability": 0.68359375,
+      "estimated_shot_standard_error": 0.010244261706531416,
       "within_5_sigma_plus_sampling_floor": true
     },
     {
@@ -168,9 +171,9 @@
       "candidate": "BB1",
       "task": "identity",
       "expected_bit": "0",
-      "predicted_probability": 0.9773256322763534,
-      "aer_shot_probability": 0.97900390625,
-      "estimated_shot_standard_error": 0.003289442211750056,
+      "predicted_probability": 0.9556630622545969,
+      "aer_shot_probability": 0.96142578125,
+      "estimated_shot_standard_error": 0.004548521700137612,
       "within_5_sigma_plus_sampling_floor": true
     },
     {
@@ -249,9 +252,9 @@
       "candidate": "CORPSE",
       "task": "identity",
       "expected_bit": "0",
-      "predicted_probability": 0.11038955015320584,
-      "aer_shot_probability": 0.126953125,
-      "estimated_shot_standard_error": 0.006924667797557697,
+      "predicted_probability": 0.6463818623329802,
+      "aer_shot_probability": 0.6640625,
+      "estimated_shot_standard_error": 0.010564449486790565,
       "within_5_sigma_plus_sampling_floor": true
     },
     {
@@ -330,9 +333,9 @@
       "candidate": "synthesized",
       "task": "identity",
       "expected_bit": "0",
-      "predicted_probability": 0.549611703998447,
-      "aer_shot_probability": 0.55712890625,
-      "estimated_shot_standard_error": 0.010994020898683461,
+      "predicted_probability": 0.04316389530980835,
+      "aer_shot_probability": 0.04736328125,
+      "estimated_shot_standard_error": 0.004490700756770757,
       "within_5_sigma_plus_sampling_floor": true
     },
     {

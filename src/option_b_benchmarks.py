@@ -208,7 +208,7 @@ def stress_test_report(report, *, grid_size=21, n_random=256, seed=88231):
 
 def qiskit_aer_circuit_checks(report, *, shots=2048, seed=2026,
                               amplitude_error=.05,detuning_over_omega=.04,
-                              depth=16):
+                              depth=32):
     """Optional Qiskit Aer *sampling* check, not hardware verification.
 
     Tests two circuits for each candidate: X^depth identity/survival and
@@ -273,5 +273,8 @@ def qiskit_aer_circuit_checks(report, *, shots=2048, seed=2026,
                         'estimated_shot_standard_error':float(sigma),
                         'within_5_sigma_plus_sampling_floor':bool(abs(p-expected[i]) <= 5*sigma+5/shots)})
     return {'shots_per_circuit':shots,'num_circuits':len(circuits),
+            'identity_depth':depth,
+            'amplitude_error':float(amplitude_error),
+            'detuning_over_omega':float(detuning_over_omega),
             'cases':results,'all_consistent':all(v['within_5_sigma_plus_sampling_floor'] for v in results),
             'caveat':'Same modeled channels supplied to Aer; no independent physics/hardware validation.'}

@@ -1,95 +1,48 @@
-# PulseWise Option B — safe integration and scientific handoff
+# Option B — Reliability Benchmarks: reproducibility and scientific handoff
 
-## What this adds
+This is a **component already integrated into the PulseWise main application**. No separate ZIP install, feature branch, or pull request is needed to run it.
 
-- `src/option_b_benchmarks.py`: matched four-pulse coherent 4D surrogate; exact noisy X^depth circuit model; 3-bit parity known-answer algorithm; frozen optimizer stress suite; optional Qiskit Aer shot checks.
-- `src/build_option_b.py`: reproducible CSV, JSON, and 5 presentation-grade figures.
-- `pages/3_Reliability_Benchmarks.py`: independent Streamlit page, avoids modifying earlier app or scientific code.
-- `tests/test_option_b_benchmarks.py`: adversarial regression tests and an Aer sampling check.
-- `results/option_b/*`: precomputed deterministic mathematical model outputs, **not hardware measurements**.
+## Run from the repository root
 
-**No existing team science files, tests, dashboard pages, or branches are overwritten by this overlay.**
+```bash
+python -m pip install -r requirements-research.txt
+python -m unittest discover -s tests -p "test_*.py" -v
+python src/build_option_b.py                 # numerical figures, CSV, JSON
+python src/build_option_b.py --qiskit        # adds 45 Qiskit Aer checks
+python -m streamlit run app.py               # select Reliability Benchmarks
+```
 
-## Safe install on the Mac (from repository root)
+All numerical results are regenerated from the frozen optimizer candidate at `results/research/optimization_report.json`, falling back to the committed `results/option_b/baseline_optimizer_report.json` when necessary. The builder does **not** optimize a new waveform.
 
-1. Keep PR #2 intact. Create a branch **from** `feature/interactive-demo`:
+## Experiments and separate physical models
 
-   ```bash
-   git switch feature/interactive-demo
-   git pull --ff-only origin feature/interactive-demo
-   git switch -c feature/reliability-benchmarks
-   ```
+| Study | Primary output | Scientific scope |
+| --- | --- | --- |
+| Single-gate constrained synthesis | Minimum sampled average gate fidelity and modeled duration | No global optimality certificate |
+| X^32 known-answer identity | Correct final-bit probability, segment count and modeled total control time | Two-level noisy Lindblad channels; fixed calibration error per circuit |
+| Three-bit parity | Mean correct parity over all eight inputs | Noisy input X preparations; ideal CNOT and readout |
+| Four-level comparison | Unconditional logical fidelity, final/peak leakage | Coherent surrogate; **no T₁/T₂** and not the physical Gridium Hamiltonian |
+| Optimizer stress | In-domain and shifted-calibration sampled failure rates | Finite samples; no continuous-region guarantee |
+| Qiskit Aer | 45 circuits, 2,048 shots each; X^32 and parity | Circuit/sampling consistency using **same modeled channels** |
 
-2. Extract `PulseWise_Option_B_Upgrade.zip` in Finder, then from the repo root:
+For the exact frozen findings see [`../results/option_b/NUMERICAL_FINDINGS.md`](../results/option_b/NUMERICAL_FINDINGS.md).
 
-   ```bash
-   UPGRADE="$HOME/Downloads/PulseWise_Option_B_Upgrade"
-   cp "$UPGRADE/src/option_b_benchmarks.py" src/
-   cp "$UPGRADE/src/build_option_b.py" src/
-   cp "$UPGRADE/tests/test_option_b_benchmarks.py" tests/
-   cp "$UPGRADE/pages/3_Reliability_Benchmarks.py" pages/
-   mkdir -p results/option_b docs
-   cp "$UPGRADE"/results/option_b/* results/option_b/
-   cp "$UPGRADE/docs/OPTION_B_INTEGRATION.md" docs/
-   ```
+## Interpretation notes
 
-   If Finder chooses another extraction name, adjust only `UPGRADE`.
+- A high average fidelity for an **individual gate** can conceal coherent error accumulation across longer circuits. The probability of a correct result need not decrease monotonically with depth.
+- The synthesized 345.68 ns waveform was chosen for short duration subject to sampled **single-gate** constraints, *not* circuit depth or multilevel performance.
+- All four waveforms use identical drive limits within each comparison, but **different physical models must never be equated**.
+- The sample-boundary and shifted-box results indicate model fragility; they do not prove global optimality or device-level reliability.
+- Aer shot agreement is not an independent hardware or physical-model validation.
+- Real deployment would require calibrated parameters, pulse hardware support, gate/readout errors, and cross-device testing.
 
-3. Validate **in this order**, using the same environment that ran your 53 passing tests:
+## Implementation map
 
-   ```bash
-   python -m unittest discover -s tests -p 'test_option_b_benchmarks.py' -v
-   python src/build_option_b.py
-   python src/build_option_b.py --qiskit
-   python -m unittest discover -s tests -p 'test_*.py' -v
-   python -m streamlit run app.py
-   ```
+- `src/option_b_benchmarks.py`: reference controls, mathematical channel repetition, parity prediction, four-level comparison, stress tests, optional Aer.
+- `src/build_option_b.py`: deterministic figures and CSV/JSON provenance; explicitly verifies identity depth 32 with Aer when requested.
+- `pages/3_Reliability_Benchmarks.py`: interactive visualization and a collapsible detailed Aer evidence table.
+- `tests/test_option_b_benchmarks.py`: mathematical sanity checks and optional Aer regression tests.
 
-4. In the Streamlit sidebar, open `Reliability Benchmarks`. Inspect all three regimes and the Aer button. Avoid merging until local Aer and the full regression suite pass.
+## Judge-facing demonstration
 
-5. After review:
-
-   ```bash
-   git status --short
-   git add src/option_b_benchmarks.py src/build_option_b.py
-   git add tests/test_option_b_benchmarks.py pages/3_Reliability_Benchmarks.py
-   git add docs/OPTION_B_INTEGRATION.md results/option_b/
-   git diff --cached --check
-   git commit -m 'Benchmark pulse reliability across circuits and multilevel leakage'
-   git push -u origin feature/reliability-benchmarks
-   ```
-
-   Open a PR targeting `feature/interactive-demo`. Do NOT push directly to `main` or overwrite PR #2. Coordinate final integration with teammates.
-
-## Experimental matrix
-
-| Experiment | Model | Primary metric | Limitation |
-| --- | --- | --- | --- |
-| Single gate threshold | Lindblad 2-level model | Average gate fidelity | Objective does not include repeated circuits |
-| X^depth known answer | Repeated 2-level Lindblad channel at fixed calibration bias | Correct terminal-bit probability | Does not model gates beyond X or hardware drift |
-| 3-bit parity algorithm | Noisy X preparations + ideal CX | Mean correct parity over 8 inputs | Ideal entangling gates and readout |
-| Multilevel comparison | Coherent 4D ladder with spectator | Logical fidelity, final/peak leakage | No T1/T2 and not physical Gridium Hamiltonian |
-| Optimizer stress | Exact 2-level Lindblad evaluations on unseen grids | Worst sampled fidelity; fraction failing | No continuous-region certificate |
-
-The frozen waveform's single-gate sampled fidelity was measured on the training/heldout sets. It was not chosen for circuit depth or multilevel robustness, so the new experiments are **genuinely out-of-objective**, but they still reuse the same mathematical dynamical models and are not hardware-independent validation.
-
-## Important caveats
-
-- Same Rabi rate and fixed maximum drive magnitude are used for each sequence.
-- A longer composite pulse incurs longer T1/T2 exposure; a short pulse can still have a worse circuit result because coherent systematic errors accumulate.
-- The X^depth reliability curve can be nonmonotonic due to coherent phase accumulation and revivals; do not claim monotonic decay or universality.
-- The simulated winner depends on the specific calibration error, detuning, depth, and error model.
-- The four-dimensional surrogate is **inspired by multilevel reasoning used in Gridium**, not Gridium's validated hardware Hamiltonian.
-- Aer uses the same derived noisy channels, making it a circuit/sampling consistency check, **not** an independent physics experiment.
-- Only results explicitly labeled 'Qiskit Aer checks passed' from a completed successful Mac test can be described as Qiskit-validated.
-- No device characterization, native Qiskit Pulse waveform execution, or hardware benchmark is included.
-
-## Suggested ten-minute talk placement
-
-1. Show original PulseWise pulse choice and 30.9% reduced duration **for single-gate optimization only**.
-2. Ask whether the faster pulse produces correct answers in an actual circuit.
-3. Show Figure `01_known_answer_depth.png`: the short optimized pulse can fail under repeated coherent errors; BB1 may preserve correctness.
-4. Show Figure `02_matched_multilevel.png`: the same controls can rank differently in the coherent four-level model.
-5. Reveal limits, resource costs, and failure under shifted out-of-domain calibration.
-6. Demonstrate the Qiskit 3-bit parity algorithm and Aer shot check (only after running it successfully).
-7. Close with societal relevance: transparent reliability, error/resource costs, and avoiding false confidence in NISQ results.
+Open **Control Lab** to explain the fidelity/duration tradeoff; show the **Research Lab** candidate optimized for one modeled goal; then open **Reliability Benchmarks** to show its X^32 failure case, the coherent four-level surrogate, and the Aer consistency summary. State each model's caveats explicitly and close on transparent reliability reporting.

@@ -105,5 +105,24 @@ class OptionBTests(unittest.TestCase):
         result=qiskit_aer_circuit_checks(self.report,shots=1024,depth=8)
         self.assertEqual(result['num_circuits'],5*9)
         self.assertTrue(result['all_consistent'])
+        identity=[row for row in result['cases'] if row['task']=='identity']
+        self.assertEqual(len(identity),5)
+        self.assertEqual({row['expected_bit'] for row in identity},{'0'})
+
+    @unittest.skipUnless(__import__('importlib').util.find_spec('qiskit') and
+                         __import__('importlib').util.find_spec('qiskit_aer'),
+                         'Qiskit Aer not installed in this execution environment')
+    def test_qiskit_aer_32_gate_headline_alignment(self):
+        result=qiskit_aer_circuit_checks(self.report,shots=2048,depth=32)
+        identity={row['candidate']:row for row in result['cases'] if row['task']=='identity'}
+        self.assertEqual(len(identity),5)
+        self.assertEqual(identity['ideal']['predicted_probability'],1.0)
+        self.assertTrue(result['all_consistent'])
+        expected={row['candidate']:row['success_probability']
+                  for row in circuit_depth_benchmark(self.report,depths=(32,))
+                  if row['case']=='combined corner'}
+        for name,p in expected.items():
+            self.assertAlmostEqual(identity[name]['predicted_probability'],p,places=10)
+        self.assertEqual({row['expected_bit'] for row in identity.values()},{'0'})
 
 if __name__=='__main__':unittest.main()
