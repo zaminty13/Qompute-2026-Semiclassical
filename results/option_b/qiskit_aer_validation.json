@@ -1,0 +1,413 @@
+{
+  "shots_per_circuit": 2048,
+  "num_circuits": 45,
+  "cases": [
+    {
+      "candidate": "ideal",
+      "task": "identity",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "ideal",
+      "task": "000",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "ideal",
+      "task": "001",
+      "expected_bit": "1",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "ideal",
+      "task": "010",
+      "expected_bit": "1",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "ideal",
+      "task": "011",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "ideal",
+      "task": "100",
+      "expected_bit": "1",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "ideal",
+      "task": "101",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "ideal",
+      "task": "110",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "ideal",
+      "task": "111",
+      "expected_bit": "1",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "identity",
+      "expected_bit": "0",
+      "predicted_probability": 0.0897675753093371,
+      "aer_shot_probability": 0.087890625,
+      "estimated_shot_standard_error": 0.0063164188691285355,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "000",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "001",
+      "expected_bit": "1",
+      "predicted_probability": 0.9919422311395019,
+      "aer_shot_probability": 0.9951171875,
+      "estimated_shot_standard_error": 0.0019755390410417456,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "010",
+      "expected_bit": "1",
+      "predicted_probability": 0.9919422311395019,
+      "aer_shot_probability": 0.99365234375,
+      "estimated_shot_standard_error": 0.0019755390410417456,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "011",
+      "expected_bit": "0",
+      "predicted_probability": 0.9840143175570222,
+      "aer_shot_probability": 0.9873046875,
+      "estimated_shot_standard_error": 0.002771413469169617,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "100",
+      "expected_bit": "1",
+      "predicted_probability": 0.9919422311395019,
+      "aer_shot_probability": 0.99462890625,
+      "estimated_shot_standard_error": 0.0019755390410417456,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "101",
+      "expected_bit": "0",
+      "predicted_probability": 0.9840143175570222,
+      "aer_shot_probability": 0.98291015625,
+      "estimated_shot_standard_error": 0.002771413469169617,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "110",
+      "expected_bit": "0",
+      "predicted_probability": 0.9840143175570222,
+      "aer_shot_probability": 0.98486328125,
+      "estimated_shot_standard_error": 0.002771413469169617,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "primitive",
+      "task": "111",
+      "expected_bit": "1",
+      "predicted_probability": 0.9762141665649298,
+      "aer_shot_probability": 0.98046875,
+      "estimated_shot_standard_error": 0.003367183335472289,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "identity",
+      "expected_bit": "0",
+      "predicted_probability": 0.9773256322763534,
+      "aer_shot_probability": 0.97900390625,
+      "estimated_shot_standard_error": 0.003289442211750056,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "000",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "001",
+      "expected_bit": "1",
+      "predicted_probability": 0.9971376792996612,
+      "aer_shot_probability": 0.99609375,
+      "estimated_shot_standard_error": 0.0011805156076378446,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "010",
+      "expected_bit": "1",
+      "predicted_probability": 0.9971376792996612,
+      "aer_shot_probability": 0.99169921875,
+      "estimated_shot_standard_error": 0.0011805156076378446,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "011",
+      "expected_bit": "0",
+      "predicted_probability": 0.9942917443589057,
+      "aer_shot_probability": 0.99560546875,
+      "estimated_shot_standard_error": 0.0016647293937482163,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "100",
+      "expected_bit": "1",
+      "predicted_probability": 0.9971376792996612,
+      "aer_shot_probability": 0.99560546875,
+      "estimated_shot_standard_error": 0.0011805156076378446,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "101",
+      "expected_bit": "0",
+      "predicted_probability": 0.9942917443589057,
+      "aer_shot_probability": 0.9951171875,
+      "estimated_shot_standard_error": 0.0016647293937482163,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "110",
+      "expected_bit": "0",
+      "predicted_probability": 0.9942917443589057,
+      "aer_shot_probability": 0.994140625,
+      "estimated_shot_standard_error": 0.0016647293937482163,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "BB1",
+      "task": "111",
+      "expected_bit": "1",
+      "predicted_probability": 0.9914621013751356,
+      "aer_shot_probability": 0.9912109375,
+      "estimated_shot_standard_error": 0.002033052434910062,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "identity",
+      "expected_bit": "0",
+      "predicted_probability": 0.11038955015320584,
+      "aer_shot_probability": 0.126953125,
+      "estimated_shot_standard_error": 0.006924667797557697,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "000",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "001",
+      "expected_bit": "1",
+      "predicted_probability": 0.9925279662748254,
+      "aer_shot_probability": 0.9931640625,
+      "estimated_shot_standard_error": 0.001902943140580259,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "010",
+      "expected_bit": "1",
+      "predicted_probability": 0.9925279662748254,
+      "aer_shot_probability": 0.990234375,
+      "estimated_shot_standard_error": 0.001902943140580259,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "011",
+      "expected_bit": "0",
+      "predicted_probability": 0.9851675951256311,
+      "aer_shot_probability": 0.98388671875,
+      "estimated_shot_standard_error": 0.0026711351899764827,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "100",
+      "expected_bit": "1",
+      "predicted_probability": 0.9925279662748254,
+      "aer_shot_probability": 0.9931640625,
+      "estimated_shot_standard_error": 0.001902943140580259,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "101",
+      "expected_bit": "0",
+      "predicted_probability": 0.9851675951256311,
+      "aer_shot_probability": 0.98388671875,
+      "estimated_shot_standard_error": 0.0026711351899764827,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "110",
+      "expected_bit": "0",
+      "predicted_probability": 0.9851675951256311,
+      "aer_shot_probability": 0.98681640625,
+      "estimated_shot_standard_error": 0.0026711351899764827,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "CORPSE",
+      "task": "111",
+      "expected_bit": "1",
+      "predicted_probability": 0.97791721785935,
+      "aer_shot_probability": 0.98193359375,
+      "estimated_shot_standard_error": 0.003247229353376048,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "identity",
+      "expected_bit": "0",
+      "predicted_probability": 0.549611703998447,
+      "aer_shot_probability": 0.55712890625,
+      "estimated_shot_standard_error": 0.010994020898683461,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "000",
+      "expected_bit": "0",
+      "predicted_probability": 1.0,
+      "aer_shot_probability": 1.0,
+      "estimated_shot_standard_error": 0.0,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "001",
+      "expected_bit": "1",
+      "predicted_probability": 0.9963574654343125,
+      "aer_shot_probability": 0.9970703125,
+      "estimated_shot_standard_error": 0.0013312035107099199,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "010",
+      "expected_bit": "1",
+      "predicted_probability": 0.9963574654343125,
+      "aer_shot_probability": 0.99658203125,
+      "estimated_shot_standard_error": 0.0013312035107099199,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "011",
+      "expected_bit": "0",
+      "predicted_probability": 0.9927414669847494,
+      "aer_shot_probability": 0.99267578125,
+      "estimated_shot_standard_error": 0.0018757611363609656,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "100",
+      "expected_bit": "1",
+      "predicted_probability": 0.9963574654343125,
+      "aer_shot_probability": 0.9951171875,
+      "estimated_shot_standard_error": 0.0013312035107099199,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "101",
+      "expected_bit": "0",
+      "predicted_probability": 0.9927414669847494,
+      "aer_shot_probability": 0.994140625,
+      "estimated_shot_standard_error": 0.0018757611363609656,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "110",
+      "expected_bit": "0",
+      "predicted_probability": 0.9927414669847494,
+      "aer_shot_probability": 0.99658203125,
+      "estimated_shot_standard_error": 0.0018757611363609656,
+      "within_5_sigma_plus_sampling_floor": true
+    },
+    {
+      "candidate": "synthesized",
+      "task": "111",
+      "expected_bit": "1",
+      "predicted_probability": 0.9891518113338704,
+      "aer_shot_probability": 0.98828125,
+      "estimated_shot_standard_error": 0.0022889964227657484,
+      "within_5_sigma_plus_sampling_floor": true
+    }
+  ],
+  "all_consistent": true,
+  "caveat": "Same modeled channels supplied to Aer; no independent physics/hardware validation."
+}

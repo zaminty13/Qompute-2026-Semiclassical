@@ -1,0 +1,97 @@
+case,amplitude_error,detuning_over_omega,candidate,depth,success_probability,parity_3bit_mean_success,total_duration_ns,total_segments,assumption
+zero systematic bias,0.0,0.0,primitive,1,0.9997083846222572,0.9995627044802792,99.99999999999999,1,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,primitive,2,0.9994170068316375,0.9995627044802792,199.99999999999997,2,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,primitive,4,0.9988346934253666,0.9995627044802792,399.99999999999994,4,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,primitive,8,0.9976721027296507,0.9995627044802792,799.9999999999999,8,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,primitive,16,0.99535504367107,0.9995627044802792,1599.9999999999998,16,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,primitive,32,0.9907532385821926,0.9995627044802792,3199.9999999999995,32,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,BB1,1,0.9985437576117862,0.9978188158364347,499.99999999999994,4,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,BB1,2,0.9970918238586658,0.9978188158364347,999.9999999999999,8,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,BB1,4,0.9942005626948409,0.9978188158364347,1999.9999999999998,16,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,BB1,8,0.9884683923380667,0.9978188158364347,3999.9999999999995,32,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,BB1,16,0.9772027406356534,0.9978188158364347,7999.999999999999,64,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,BB1,32,0.9554449113754631,0.9978188158364347,15999.999999999998,128,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,CORPSE,1,0.9987604604308777,0.9981429943815814,433.3333333333333,3,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,CORPSE,2,0.997524316016709,0.9981429943815814,866.6666666666666,6,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,CORPSE,4,0.9950608900577681,0.9981429943815814,1733.3333333333333,12,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,CORPSE,8,0.9901705697374595,0.9981429943815814,3466.6666666666665,24,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,CORPSE,16,0.9805343749047026,0.9981429943815814,6933.333333333333,48,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,CORPSE,32,0.9618265710525093,0.9981429943815814,13866.666666666666,96,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,synthesized,1,0.9988432753604428,0.9982669192846462,345.67860794758235,5,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,synthesized,2,0.9977993295589441,0.9982669192846462,691.3572158951647,10,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,synthesized,4,0.9955240898355763,0.9982669192846462,1382.7144317903294,20,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,synthesized,8,0.9907541542638045,0.9982669192846462,2765.428863580659,40,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,synthesized,16,0.9803664724846782,0.9982669192846462,5530.857727161318,80,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+zero systematic bias,0.0,0.0,synthesized,32,0.956443117620806,0.9982669192846462,11061.715454322635,160,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,primitive,1,0.993569971960054,0.9904168429053803,99.99999999999999,1,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,primitive,2,0.9750010910106905,0.9904168429053803,199.99999999999997,2,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,primitive,4,0.9036175990213541,0.9904168429053803,399.99999999999994,4,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,primitive,8,0.6538728522787499,0.9904168429053803,799.9999999999999,8,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,primitive,16,0.09930087285806055,0.9904168429053803,1599.9999999999998,16,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,primitive,32,0.6515685489185092,0.9904168429053803,3199.9999999999995,32,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,BB1,1,0.9985814900669554,0.9978752519289364,499.99999999999994,4,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,BB1,2,0.9971079157972791,0.9978752519289364,999.9999999999999,8,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,BB1,4,0.9942318352603461,0.9978752519289364,1999.9999999999998,16,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,BB1,8,0.9885273507438668,0.9978752519289364,3999.9999999999995,32,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,BB1,16,0.9773067693873184,0.9978752519289364,7999.999999999999,64,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,BB1,32,0.9556009423268826,0.9978752519289364,15999.999999999998,128,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,CORPSE,1,0.9926370974633133,0.9890367651155522,433.3333333333333,3,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,CORPSE,2,0.9731726758872876,0.9890367651155522,866.6666666666666,6,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,CORPSE,4,0.9005184613021572,0.9890367651155522,1733.3333333333333,12,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,CORPSE,8,0.6515391265034948,0.9890367651155522,3466.6666666666665,24,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,CORPSE,16,0.11158794343528061,0.9890367651155522,6933.333333333333,48,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,CORPSE,32,0.6423737081426033,0.9890367651155522,13866.666666666666,96,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,synthesized,1,0.9983694912748499,0.9975582225829274,345.67860794758235,5,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,synthesized,2,0.9959602039851766,0.9975582225829274,691.3572158951647,10,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,synthesized,4,0.9882035796341272,0.9975582225829274,1382.7144317903294,20,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,synthesized,8,0.961927335177421,0.9975582225829274,2765.428863580659,40,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,synthesized,16,0.8704613706787461,0.9975582225829274,5530.857727161318,80,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+amplitude +5%,0.05,0.0,synthesized,32,0.5822138451964656,0.9975582225829274,11061.715454322635,160,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,primitive,1,0.9981101311190617,0.9971705507102413,99.99999999999999,1,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,primitive,2,0.9994117108276375,0.9971705507102413,199.99999999999997,2,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,primitive,4,0.9988115413221201,0.9971705507102413,399.99999999999994,4,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,primitive,8,0.9975757360786944,0.9971705507102413,799.9999999999999,8,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,primitive,16,0.9949634958588794,0.9971705507102413,1599.9999999999998,16,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,primitive,32,0.9891865509880831,0.9971705507102413,3199.9999999999995,32,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,BB1,1,0.996952516508646,0.9954426913451875,499.99999999999994,4,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,BB1,2,0.9970893466780456,0.9954426913451875,999.9999999999999,8,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,BB1,4,0.9941956377545659,0.9954426913451875,1999.9999999999998,16,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,BB1,8,0.988458659095935,0.9954426913451875,3999.9999999999995,32,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,BB1,16,0.9771837324567516,0.9954426913451875,7999.999999999999,64,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,BB1,32,0.9554086640557147,0.9954426913451875,15999.999999999998,128,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,CORPSE,1,0.9987611332875016,0.9981440011666488,433.3333333333333,3,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,CORPSE,2,0.9975233183421728,0.9981440011666488,866.6666666666666,6,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,CORPSE,4,0.9950587809694708,0.9981440011666488,1733.3333333333333,12,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,CORPSE,8,0.990165903730568,0.9981440011666488,3466.6666666666665,24,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,CORPSE,16,0.9805233075754616,0.9981440011666488,6933.333333333333,48,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,CORPSE,32,0.9617979274653394,0.9981440011666488,13866.666666666666,96,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,synthesized,1,0.9969083409642359,0.9953768342041558,345.67860794758235,5,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,synthesized,2,0.9940308288383992,0.9953768342041558,691.3572158951647,10,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,synthesized,4,0.9806176148068769,0.9953768342041558,1382.7144317903294,20,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,synthesized,8,0.9326339961524511,0.9953768342041558,2765.428863580659,40,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,synthesized,16,0.7658300914692144,0.9953768342041558,5530.857727161318,80,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+detuning +0.04 Ω,0.0,0.04,synthesized,32,0.3162462955012142,0.9953768342041558,11061.715454322635,160,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,primitive,1,0.9919422311395019,0.9880104765818127,99.99999999999999,1,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,primitive,2,0.9742944721365228,0.9880104765818127,199.99999999999997,2,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,primitive,4,0.9009366596731412,0.9880104765818127,399.99999999999994,4,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,primitive,8,0.6452992896048714,0.9880104765818127,799.9999999999999,8,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,primitive,16,0.0897675753093371,0.9880104765818127,1599.9999999999998,16,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,primitive,32,0.6872774654794767,0.9880104765818127,3199.9999999999995,32,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,BB1,1,0.9971376792996612,0.9957187965438545,499.99999999999994,4,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,BB1,2,0.9971088085275754,0.9957187965438545,999.9999999999999,8,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,BB1,4,0.9942340549518176,0.9957187965438545,1999.9999999999998,16,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,BB1,8,0.9885334954305757,0.9957187965438545,3999.9999999999995,32,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,BB1,16,0.9773256322763534,0.9957187965438545,7999.999999999999,64,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,BB1,32,0.9556630622545969,0.9957187965438545,15999.999999999998,128,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,CORPSE,1,0.9925279662748254,0.9888754877575899,433.3333333333333,3,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,CORPSE,2,0.9730868302121567,0.9888754877575899,866.6666666666666,6,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,CORPSE,4,0.9001947940523956,0.9888754877575899,1733.3333333333333,12,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,CORPSE,8,0.6505081021112222,0.9888754877575899,3466.6666666666665,24,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,CORPSE,16,0.11038955015320584,0.9888754877575899,6933.333333333333,48,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,CORPSE,32,0.6463818623329802,0.9888754877575899,13866.666666666666,96,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,synthesized,1,0.9963574654343125,0.994556076073882,345.67860794758235,5,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,synthesized,2,0.9894756440971593,0.994556076073882,691.3572158951647,10,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,synthesized,4,0.9626766901662575,0.994556076073882,1382.7144317903294,20,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,synthesized,8,0.8648935221858326,0.994556076073882,2765.428863580659,40,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,synthesized,16,0.549611703998447,0.994556076073882,5530.857727161318,80,Only X pulses noisy; ideal state preparation/measurement and CNOTs
+combined corner,0.05,0.04,synthesized,32,0.04316389530980835,0.994556076073882,11061.715454322635,160,Only X pulses noisy; ideal state preparation/measurement and CNOTs
