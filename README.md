@@ -8,6 +8,13 @@ PulseWise is a research-focused, interactive Python/Qiskit demonstration of how 
 
 All numerical findings below are **simulations, not quantum-hardware measurements**.
 
+## Explore the project
+
+- **[Technical architecture and research workflow](docs/ARCHITECTURE.md)** — GitHub-rendered, source-editable diagrams of the selector, optimizer, benchmarking, Qiskit checks, and model boundaries.
+- **[Figure guide](docs/FIGURE_GUIDE.md)** — complete walkthrough of the research plots, their axes/meaning, and presentation cautions.
+- **[Scientific references and Gridium attribution](REFERENCES.md)** — peer-reviewed pulse/control references, the public Gridium thesis and code repository, and clear distinctions between inspiration and implementation.
+- **[Third-party software notices](THIRD_PARTY_NOTICES.md)** — declared dependencies and license links. The team's own source has not yet been assigned a top-level license.
+
 ## Why this matters
 
 A control technique that suppresses one error may take longer, amplifying decoherence or responding poorly to different imperfections. High average fidelity of a single gate is not a guarantee of correct answers after many gates. Our goal is a *transparent decision aid* that shows both benefits and failure cases instead of reporting a single optimistic fidelity number.
@@ -116,6 +123,10 @@ Quantum-computing access, execution time, and calibration resources are limited.
 - `pages/` — Research Lab and Reliability Benchmarks Streamlit pages.
 - `results/selector/`, `results/research/`, `results/option_b/` — reproducible figures, tabular exports, and experiment metadata.
 - [`README_RESEARCH.md`](README_RESEARCH.md) — synthesis and surrogate model details.
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — implementation/experimental workflow diagrams.
+- [`docs/FIGURE_GUIDE.md`](docs/FIGURE_GUIDE.md) — figure-by-figure explanation and presentation guidance.
+- [`REFERENCES.md`](REFERENCES.md) — scientific literature and Gridium provenance.
+- [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) — dependency licenses and usage notices.
 - [`docs/OPTION_B_INTEGRATION.md`](docs/OPTION_B_INTEGRATION.md) — benchmark definitions and scientific handoff.
 - [`results/option_b/NUMERICAL_FINDINGS.md`](results/option_b/NUMERICAL_FINDINGS.md) — precise frozen benchmark metrics.
 
