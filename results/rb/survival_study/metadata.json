@@ -1,0 +1,128 @@
+{
+  "protocol": "randomized X/identity state-return study; not Clifford RB",
+  "teammate_source_commit": "7e31e441174e3e0c44bfcd2776bfd765d6607eed",
+  "integration_base": "d6982225f9f08a69f825c2d44c96bf38c0daeac3",
+  "cases": {
+    "mixed_coherent": {
+      "seed": 2026,
+      "lengths": [
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "num_trials": 512,
+      "amplitude_error": 0.05,
+      "detuning_rad_per_ns": 0.003,
+      "primitive_duration_ns": 100.0,
+      "omega_rad_per_ns": 0.031415926535897934,
+      "t1_ns": "infinity",
+      "t2_ns": "infinity",
+      "initial_state": 0,
+      "x_probability": 0.5,
+      "identity_duration_ns": 0.0,
+      "identity_noise": "none",
+      "recovery": "noisy X if ideal sampled X parity is odd",
+      "control_errors": "fixed across all operations and trials",
+      "uncertainty": "one standard error across sampled sequences; no shot noise"
+    },
+    "mixed_decoherence": {
+      "seed": 2026,
+      "lengths": [
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "num_trials": 512,
+      "amplitude_error": 0.05,
+      "detuning_rad_per_ns": 0.003,
+      "primitive_duration_ns": 100.0,
+      "omega_rad_per_ns": 0.031415926535897934,
+      "t1_ns": 30000.0,
+      "t2_ns": 20000.0,
+      "initial_state": 0,
+      "x_probability": 0.5,
+      "identity_duration_ns": 0.0,
+      "identity_noise": "none",
+      "recovery": "noisy X if ideal sampled X parity is odd",
+      "control_errors": "fixed across all operations and trials",
+      "uncertainty": "one standard error across sampled sequences; no shot noise"
+    },
+    "amplitude_decoherence": {
+      "seed": 2026,
+      "lengths": [
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "num_trials": 512,
+      "amplitude_error": 0.05,
+      "detuning_rad_per_ns": 0.0,
+      "primitive_duration_ns": 100.0,
+      "omega_rad_per_ns": 0.031415926535897934,
+      "t1_ns": 30000.0,
+      "t2_ns": 20000.0,
+      "initial_state": 0,
+      "x_probability": 0.5,
+      "identity_duration_ns": 0.0,
+      "identity_noise": "none",
+      "recovery": "noisy X if ideal sampled X parity is odd",
+      "control_errors": "fixed across all operations and trials",
+      "uncertainty": "one standard error across sampled sequences; no shot noise"
+    },
+    "mixed_decoherence_state1": {
+      "seed": 2026,
+      "lengths": [
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "num_trials": 512,
+      "amplitude_error": 0.05,
+      "detuning_rad_per_ns": 0.003,
+      "primitive_duration_ns": 100.0,
+      "omega_rad_per_ns": 0.031415926535897934,
+      "t1_ns": 30000.0,
+      "t2_ns": 20000.0,
+      "initial_state": 1,
+      "x_probability": 0.5,
+      "identity_duration_ns": 0.0,
+      "identity_noise": "none",
+      "recovery": "noisy X if ideal sampled X parity is odd",
+      "control_errors": "fixed across all operations and trials",
+      "uncertainty": "one standard error across sampled sequences; no shot noise"
+    }
+  },
+  "checksum_convention": "SHA-256; Python and CSV CRLF normalized to LF; other files hashed as bytes",
+  "source_sha256": {
+    "src/rb.py": "043361168489f8602b1bd04ed285446e67bd2036e41d766e08a0f8d423c4199e",
+    "src/plot_rb.py": "48aac869ae6ace60371be02f156690c6ea7a0efa5a132c11f9f49fe67022de48",
+    "src/compare_rb_selector.py": "fb596f5ebd9e50a66f2b4dde95c2b6653b6f05089544a5193025a271d65625b3",
+    "src/pulses.py": "e3aba6e085bd469a4524ad42badd748c4a6bb5b7c24c55c26eb892a7f544d91f",
+    "src/decoherence.py": "b2a2462a7ce8d62c14c2ffcda19eb6db88a4a968226f9d07fe614352d6c9d3fe",
+    "src/select_pulse.py": "98a078c90139e98605905d10522ab7096b4ae107c70f892531d55cff975b5221"
+  },
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "qiskit": "2.5.2",
+    "matplotlib": "3.11.2"
+  },
+  "files_sha256": {
+    "samples.csv": "c38263969d97aa0dcff4cfbe12333a82e7a0a38b340eddb86cc013fd5fe1d03c",
+    "selector_comparison.csv": "3ed1aac6548d21bf6fc7583eecb4bf6ba0ac8df3bbae414670c3927c6f5ccf99",
+    "selector_vs_survival.png": "e4958ba2c9618a3c47c932094fa3a4716bc13c21eef4ae647b10346f5650e40b",
+    "summary.csv": "ecb0c2290d0a1009844b6bed52036355e7d8056bfda100e06b134b315e37e5e7",
+    "survival_by_length.png": "53c923137d6f73163663203364915f33627bbd481a5c620dcb0137eb328dc013",
+    "survival_by_mean_duration.png": "534332a90a9ae0b00eef01e68b786bc8b46918104e75e4cde66285593427e817"
+  },
+  "legacy_fit_status": "superseded; no validated RB error interpretation",
+  "sampling": "same locally seeded sequences for all pulse families and cases; no measurement shots"
+}

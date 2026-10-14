@@ -4,9 +4,14 @@ This is a **component already integrated into the PulseWise main application**. 
 
 ## Local integration checkout
 
-This review uses commit `67769f7409e2c879865b5d38baf93e68037ef7d3` on local
-branch `feature/integration-review`. The original checkout remains on
-`feature/decoherence`. No integration changes have been committed or published.
+The current reviewed assembly is `d698222` on `feature/integration-review`,
+including integration commit `e160387` and the main documentation through
+`85785c1`. This reference identifies the inspected state; it is not a reset
+instruction. The branch is already present on origin. The original checkout
+remains on `feature/decoherence`. Preserve later commits and uncommitted work.
+`docs/decoherence.md` is explicitly excluded from publication by the owner and
+is not copied into this review worktree. This isolated correction uses branch
+`feature/rb-survival-review`; the completed integration checkout is untouched.
 
 Use your own checkout path. This prepared checkout already has its own `.venv`:
 
@@ -78,7 +83,7 @@ was renamed from `day2`, with all file contents verified identical. Historical
 metadata retains its original run name and command. The CLI default remains
 `day2` for compatibility; use `--run-name crossover_baseline` explicitly. All 29 files checked during the original local integration initially matched their source SHA-256 hashes. The unpublished decoherence notes are not included in this branch.
 
-For the original model, see [src/decoherence.py](../src/decoherence.py). For the crossover analysis, see [analysis_notes.md](../results/decoherence/exploration/crossover_baseline/analysis_notes.md).Its baseline The crossover analysis uses T1 = 30 us and T2 = 20 us, while the optimizer uses T1 = 200 us and T2 = 150 us. Both are illustrative simulation parameters.
+For the original model, see [src/decoherence.py](../src/decoherence.py). For the crossover analysis, see [analysis_notes.md](../results/decoherence/exploration/crossover_baseline/analysis_notes.md). The crossover analysis uses T1 = 30 us and T2 = 20 us, while the optimizer uses T1 = 200 us and T2 = 150 us. Both are illustrative simulation parameters.
 ## Selection and solver reporting
 
 Nine training points enter optimization. The additional 96 points are
@@ -124,7 +129,11 @@ single-gate threshold, not universally better. At +5% amplitude error and
 Delta/Omega = +0.04 with T1/T2 = 200/150 us, X^32 correct-output probability is
 about **4.32% synthesized versus 95.57% BB1**. This metric is distinct from
 average gate fidelity. Repeated-X and parity are not randomized benchmarking.
-SQ's RB implementation was absent from the reviewed snapshot and is not included.
+Taylor SQ's later contribution `7e31e44` is on `origin/feature/decoherence`.
+Its source and historical outputs are imported into the isolated survival-review
+worktree with narrow corrections. It is accepted only as the state-specific
+X/identity survival study described in [PULSEWISE.md](PULSEWISE.md#randomized-xidentity-survival-analysis),
+not as standard randomized benchmarking.
 
 For the exact frozen findings see [`../results/option_b/NUMERICAL_FINDINGS.md`](../results/option_b/NUMERICAL_FINDINGS.md).
 
@@ -171,5 +180,32 @@ The prepared environment uses Python 3.14.7, Qiskit 2.5.2, Aer 0.17.2, NumPy 2.5
 SciPy 1.18.1 and Streamlit 1.65.0. Requirements remain unchanged and unpinned.
 Streamlit reports existing `use_container_width` deprecation warnings; current
 page checks pass. Matplotlib may substitute available font weights. Historical
-solver metadata and the absent RB contribution remain unavailable. Nothing here
+solver metadata remains unavailable. Nothing here
 establishes a hardware performance guarantee or a continuous leakage maximum.
+
+
+## Corrected restricted X/identity study
+
+The isolated review preserves Taylor SQ's contribution from `7e31e44`, its eight
+original tests and all historical result bytes. The original fit-based claims are
+superseded, not silently deleted. Active methodology, corrected results and
+reproduction commands are in [PULSEWISE.md](PULSEWISE.md#randomized-xidentity-survival-analysis).
+The working dashboard does not load the historical results/rb files, so no page
+change is required. Its existing waveform/configuration checks remain intact.
+
+The corrected workflow uses matched seeded sequences, counts noisy recovery and
+physical duration, exports raw samples and sequence standard errors, and checks
+means/variances using exact binomial averaging. It makes no standard-RB error-rate
+claim and does not introduce idle noise or an InterleavedRB implementation.
+The eight original tests plus thirteen focused survival tests supplement the
+existing 82-test suite. See the final review report for the actual execution result.
+
+Qiskit Experiments remains a declared dependency but is not needed by the corrected
+survival workflow. No dependency or environment changes were made. The bounded
+optional Qiskit reproduction from the earlier review is not used as scientific
+evidence for pulse rankings; the original exact failure remains unreproduced.
+
+The corrected study originates on `feature/rb-survival-review`, based on `d698222`.
+Final local assembly uses `feature/final-assembly-review`; the protected original
+and integration checkouts remain untouched. Inspect the final Git history for the
+reviewed correction and original teammate contribution before publication.

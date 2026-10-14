@@ -15,6 +15,14 @@ All numerical findings below are **simulations, not quantum-hardware measurement
 - **[Scientific references and Gridium attribution](REFERENCES.md)** — peer-reviewed pulse/control references, the public Gridium thesis and code repository, and clear distinctions between inspiration and implementation.
 - **[Third-party software notices](THIRD_PARTY_NOTICES.md)** — declared dependencies and license links. The team's own source has not yet been assigned a top-level license.
 
+## Corrected X/identity survival study
+
+See [the protocol and reproduction commands](docs/PULSEWISE.md#randomized-xidentity-survival-analysis)
+and [reviewed results](results/rb/survival_study/) for the seeded, state-specific
+X/identity survival comparison. It is not standard Clifford randomized benchmarking.
+Historical fitted proxies directly under `results/rb/` are preserved but superseded;
+the former approximately 200x gate-error-reduction claim is not supported.
+
 ## Why this matters
 
 A control technique that suppresses one error may take longer, amplifying decoherence or responding poorly to different imperfections. High average fidelity of a single gate is not a guarantee of correct answers after many gates. Our goal is a *transparent decision aid* that shows both benefits and failure cases instead of reporting a single optimistic fidelity number.
