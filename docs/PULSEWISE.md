@@ -176,8 +176,6 @@ Underlying files are summary.csv, samples.csv, selector_comparison.csv and
 metadata.json in the same directory. Metadata records all case configurations,
 package versions, source hashes, source commit and output checksums. Python and
 CSV checksums normalize CRLF to LF so Git checkout line endings do not invalidate
-provenance; image checksums use exact bytes. Python and
-CSV checksums normalize CRLF to LF so Git checkout line endings do not invalidate
 provenance; image checksums use exact bytes.
 
 From the review checkout, using an environment with requirements-research.txt:

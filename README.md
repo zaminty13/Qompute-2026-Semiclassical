@@ -1,141 +1,142 @@
 # PulseWise — Quantum Control Lab
 
-**Team Semiclassical · Qompute 2026 · Track 3: Can We Trust a Noisy Quantum Computer?**
+Team Semiclassical · Qompute 2026 · Track 3: Can We Trust a Noisy Quantum Computer?
 
-**A faster quantum gate is not necessarily a more reliable quantum computation.**
+We simulated how pulse design changes the reliability and cost of simple quantum computations. PulseWise combines Python/Qiskit channel models, a pulse selector, sample-constrained synthesis, and a three-page Streamlit dashboard. All reported results are simulations with illustrative parameters, not measured hardware performance.
 
-PulseWise is a research-focused, interactive Python/Qiskit demonstration of how quantum-control choices trade off **single-gate fidelity, circuit-level correctness, pulse duration, robustness, and leakage**. It compares standard X, BB1, and CORPSE controls; searches for new five-segment controls; and challenges its own optimizer using longer circuits and an intentionally separate multilevel model.
+## A circuit result and its cost
 
-All numerical findings below are **simulations, not quantum-hardware measurements**.
+For a fixed 32-X circuit, BB1 increased correct-output probability from **68.73% to 95.57%**, a **26.84-percentage-point** increase, while increasing modeled control duration from **3.20 to 16.00 µs** and executed pulse segments from **32 to 128**. That is five times the duration and four times the segments. These costs describe modeled control, not simulator wall-clock runtime, energy use, cloud charges, or hardware throughput.
 
-## Explore the project
+![Correct-output probability versus successive noisy X gates](results/option_b/01_known_answer_depth.png)
 
-- **[Technical architecture and research workflow](docs/ARCHITECTURE.md)** — GitHub-rendered, source-editable diagrams of the selector, optimizer, benchmarking, Qiskit checks, and model boundaries.
-- **[Figure guide](docs/FIGURE_GUIDE.md)** — complete walkthrough of the research plots, their axes/meaning, and presentation cautions.
-- **[Scientific references and Gridium attribution](REFERENCES.md)** — peer-reviewed pulse/control references, the public Gridium thesis and code repository, and clear distinctions between inspiration and implementation.
-- **[Third-party software notices](THIRD_PARTY_NOTICES.md)** — declared dependencies and license links. The team's own source has not yet been assigned a top-level license.
+The figure starts in the ground state. Odd depths target the excited state; even depths target the ground state. Its panels use fixed amplitude/detuning biases with T1 = 200 µs, T2 = 150 µs and nominal primitive-X duration 100 ns. The lower-right panel combines +5% amplitude error with normalized detuning δ/Ω = +0.04. The table below reports that panel at depth 32, where the ideal operation is identity.
 
-## Corrected X/identity survival study
-
-See [the protocol and reproduction commands](docs/PULSEWISE.md#randomized-xidentity-survival-analysis)
-and [reviewed results](results/rb/survival_study/) for the seeded, state-specific
-X/identity survival comparison. It is not standard Clifford randomized benchmarking.
-Historical fitted proxies directly under `results/rb/` are preserved but superseded;
-the former approximately 200x gate-error-reduction claim is not supported.
-
-## Why this matters
-
-A control technique that suppresses one error may take longer, amplifying decoherence or responding poorly to different imperfections. High average fidelity of a single gate is not a guarantee of correct answers after many gates. Our goal is a *transparent decision aid* that shows both benefits and failure cases instead of reporting a single optimistic fidelity number.
-
-## Main findings
-
-### 1. Shorter single-gate pulse — with an important limit
-
-With a fixed modeled drive rate and a sampled 99.7% gate-fidelity requirement, constrained synthesis yielded a **345.68 ns** five-segment candidate, compared with **500 ns** for BB1 (**30.9% shorter**). The optimized candidate's worst training-sample fidelity was approximately **99.7027%**—only narrowly above the threshold. This is a local, sample-constrained result, **not** a claim of global time optimality or hardware speedup.
-
-### 2. A strong single-gate candidate can fail at circuit depth
-
-Under a frozen **+5% amplitude error, +0.04 normalized detuning**, and the saved T₁/T₂ assumptions, we simulated **32 successive X gates**, which ideally implement the identity on `|0⟩`:
-
-| Pulse | Correct output after X^32 | Total modeled control time | Control segments |
+| Pulse | Correct-output probability after 32 X gates | Modeled duration | Executed segments |
 | --- | ---: | ---: | ---: |
 | Primitive X | 68.73% | 3.20 µs | 32 |
-| BB1 | **95.57%** | 16.00 µs | 128 |
+| BB1 | 95.57% | 16.00 µs | 128 |
 | CORPSE | 64.64% | 13.87 µs | 96 |
-| Synthesized | **4.32%** | 11.06 µs | 160 |
+| Synthesized | 4.32% | 11.06 µs | 160 |
 
-The synthesized pulse was optimized for **sampled single-gate fidelity**, not long-circuit success. This is a counterexample within one specified simulation regime, not a universal ranking. Coherent errors can accumulate non-monotonically, so circuit depth matters.
+[Committed circuit data](results/option_b/known_answer_circuit.csv), [configuration and summary](results/option_b/research_summary.json), and [methodology](docs/OPTION_B_INTEGRATION.md) support this comparison. Fixed coherent errors can accumulate under repeated channel composition; the non-monotonic depth curves are consistent with that interpretation. These data do not isolate a unique mechanism from all other modeled effects. They show that single-gate average fidelity does not determine the result of a particular long circuit.
 
-![Correct output probability over circuit depth](results/option_b/01_known_answer_depth.png)
+## Models, selector, and synthesis
 
-### 3. Multilevel leakage can change the winner
+Primitive X is one rectangular rotation. BB1 uses four segments to compensate amplitude error; CORPSE uses three segments to compensate detuning. The complete sequence APIs currently target X gates. Every comparison uses a shared nominal drive Ω = π/(100 ns), unless another primitive duration is explicitly specified. Actual sequence durations are 100 ns, 500 ns and approximately 433.33 ns, respectively. Composite sequences do not share the primitive's total duration.
 
-We then evaluated the **same four waveforms** in an independent **coherent four-level surrogate** with identical drive and coupling assumptions (`α/Ω = −3`, `η = √2`, zero applied bias):
+Fractional amplitude error ε scales the drive by 1 + ε. Absolute detuning δ is expressed in rad/ns; normalized detuning is δ/Ω. Thus +0.04 normalized detuning here is approximately +0.00125664 rad/ns. The [two-level model](src/decoherence.py) applies Markovian T1 relaxation and T2 decoherence during every segment, with pure dephasing separated from relaxation and T2 ≤ 2T1. The output is a Qiskit SuperOp, and average gate fidelity compares the complete channel with ideal X, averaged over input states.
 
-| Pulse | Logical fidelity | Final leakage |
+The [crossover analysis](results/decoherence/exploration/crossover_baseline/) compares control-error suppression against added decoherence and checks crossings at two grid resolutions. Its baseline T1/T2 is **30/20 µs**, distinct from the **200/150 µs** synthesis and fixed-circuit configuration. [Analysis notes](results/decoherence/exploration/crossover_baseline/analysis_notes.md) describe the conditions and numerical checks. Sweeps that fix absolute detuning while changing drive strength also change δ/Ω.
+
+The standard [selector](src/select_pulse.py) evaluates primitive X, BB1 and CORPSE, then chooses the shortest candidate meeting the requested average-fidelity threshold. It reports no feasible candidate when none qualifies. It does not select the separately synthesized waveform, and its objective is not maximum long-circuit return probability.
+
+For synthesis, we varied five segment angles and phases at fixed drive strength. The uncertainty domain was ε ∈ [−0.05, +0.05] and δ/Ω ∈ [−0.04, +0.04], with a 99.7% sampled fidelity threshold and T1/T2 = 200/150 µs. The [frozen report](results/research/optimization_report.json) records a **345.6786 ns** candidate: **30.8643% shorter** than 500 ns BB1, with worst training fidelity **99.702669%**.
+
+Nine training points enter the optimization. Another 96 points participate in candidate selection; despite historical `heldout_*` field names, these are selection-validation samples, not an untouched final test set. Subsequent frozen-candidate checks use a 961-point dense grid and 512 new random in-domain points. The dense-grid minimum is 99.702669%. In a separate shifted box, **97 of 512 samples (18.9453%)** miss the threshold. [Stress-test data](results/option_b/optimizer_stress_test.csv) and [synthesis implementation](src/research_synthesis.py) distinguish these stages. Finite sampling cannot certify an entire continuous region, and the historical report lacks solver-termination metadata. No global optimum is established.
+
+## Randomized X/identity survival
+
+The [corrected study](docs/PULSEWISE.md#randomized-xidentity-survival-analysis) asks a separate, state-specific question. We sample 32 slots, choosing X independently with probability 1/2; identity is a zero-time no-op. A noisy recovery X is appended when the ideal X count is odd. If k X gates were sampled, the executed count is k + (k mod 2), whose ensemble expectation is 16.5. This restricted randomization samples repetition counts, not general Clifford sequences or gate-order effects.
+
+The following amplitude-only comparison uses +5% amplitude error, **zero absolute detuning**, T1/T2 = **30/20 µs**, nominal primitive duration 100 ns, seed 2026 and 512 matched sequences starting in the ground state. Each family uses its own fixed noisy X channel throughout.
+
+| Pulse | Single-gate average fidelity | Mean ground-state return ± one sequence SE | Sampled mean duration |
+| --- | ---: | ---: | ---: |
+| Primitive X | 99.3696% | 0.140028 ± 0.005139 | 1.655469 µs |
+| BB1 | 98.9012% | 0.855723 ± 0.000951 | 8.277344 µs |
+| CORPSE | 98.6433% | 0.217286 ± 0.003871 | 7.173698 µs |
+
+[Comparison CSV](results/rb/survival_study/selector_comparison.csv), [raw samples](results/rb/survival_study/samples.csv), and [metadata](results/rb/survival_study/metadata.json) record the conditions and checksums. Standard errors quantify sequence sampling, not measurement shots. Exact binomial means provide a reference independent of the finite sample. Individual durations vary; the table reports ensemble sample means, not a matched-time experiment.
+
+Primitive is the shortest qualifying choice at a 99% single-gate threshold, while BB1 has the highest return probability in this protocol. Those different objectives do not contradict each other. The other saved survival curves and excited-state control use **mixed errors**, including δ = 0.003 rad/ns; they do not directly test every amplitude-only configuration. Relaxation can favor ground-state return without establishing high gate quality. Historical fitted proxies remain archived, but standard-RB error-rate and approximately 200× improvement interpretations are withdrawn. See the [current results](results/rb/survival_study/) and detailed correction above.
+
+## Separate coherent multilevel check
+
+We applied the same frozen waveforms to a four-level surrogate with α/Ω = −3, coupling ratio η = √2, zero amplitude/detuning bias and Ω = π/(100 ns). This model has no T1/T2. Its unconditional logical fidelity averages overlap with ideal X over logical inputs and counts leakage as failure; it does not renormalize after projecting onto the computational subspace.
+
+| Pulse | Unconditional logical fidelity | Final leakage |
 | --- | ---: | ---: |
-| Primitive X | **92.32%** | 5.55% |
+| Primitive X | 92.32% | 5.55% |
 | BB1 | 67.24% | 29.06% |
 | CORPSE | 81.09% | 16.06% |
-| Synthesized | 80.75% | 17.01% |
+| Synthesized | 80.78% | 16.99% |
 
-The surrogate has a computational subspace, an unwanted leakage level, and a spectator. It **does not include T₁/T₂** and **is not a calibrated Gridium Hamiltonian**. Do **not** directly compare its absolute fidelity values to the noisy two-level circuit above. It tests sensitivity to a modeling assumption, not real-device performance.
+[Multilevel CSV](results/option_b/multilevel_comparison.csv) and [observable definitions](src/research_leakage.py) support these values. Final leakage averages the two logical basis inputs. The separately reported peak is a sampled maximum at 18 steps per segment, not a continuous-time bound. These coherent surrogate values cannot be directly compared with decohering two-level fidelities. Gridium-inspired motivation does not make this a calibrated Gridium Hamiltonian; see [references and attribution](REFERENCES.md).
 
-![Matched four-level comparison](results/option_b/02_matched_multilevel.png)
+## Navigate the evidence and dashboard
 
-### 4. Robustness has a domain
-
-The synthesized pulse passes a dense sample check **within** the training uncertainty bounds (worst fidelity approximately **99.7027%**), but **18.9%** of samples in a deliberately shifted *out-of-domain* calibration box miss the 99.7% requirement. Sample tests can reveal failures; they cannot certify every point in a continuous region.
-
-![Robustness stress tests](results/option_b/03_stress_failure_rate.png)
-
-## Explore the interactive demo
-
-| Page | What it demonstrates |
+| Component | Source and evidence |
 | --- | --- |
-| **Control Lab** (`app.py`) | Live noise and coherence controls, three standard pulse choices, fidelity-versus-duration decision, optional six-state Aer check. |
-| **Research Lab** (`pages/2_Research_Lab.py`) | Five-segment control synthesis, sampled uncertainty constraints, waveform visualization, four-level leakage exploration, Qiskit model checks. |
-| **Reliability Benchmarks** (`pages/3_Reliability_Benchmarks.py`) | Known-answer X^32 circuits, resource accounting, matched multilevel pulse comparison, optimizer stress tests, and 45 Aer circuit checks. |
+| Pulse and decoherence models | [pulses.py](src/pulses.py), [decoherence.py](src/decoherence.py), [tests](tests/) |
+| Crossover and selector | [crossover results](results/decoherence/exploration/crossover_baseline/), [selector results](results/selector/) |
+| Synthesis and waveform | [research guide](README_RESEARCH.md), [frozen report](results/research/optimization_report.json) |
+| Circuit and leakage checks | [integration guide](docs/OPTION_B_INTEGRATION.md), [numerical findings](results/option_b/NUMERICAL_FINDINGS.md) |
+| Restricted randomized study | [protocol](docs/PULSEWISE.md#randomized-xidentity-survival-analysis), [results](results/rb/survival_study/) |
+| Architecture and figures | [workflow](docs/ARCHITECTURE.md), [figure guide](docs/FIGURE_GUIDE.md) |
 
-For a short judge demo: start with a **Control Lab** decision, reveal the **Research Lab** synthesized control, then open **Reliability Benchmarks** to show where that recommendation fails.
+Control Lab (`app.py`) selects among the three standard pulses. Research Lab explores synthesis and multilevel behavior. Reliability Benchmarks displays circuit and stress checks. Demonstrate them in that order to distinguish a selector decision from a limitation of the separate synthesis objective. Saved results are checked against waveform/configuration provenance before display. Historical research figures may retain “held-out” terminology; interpret it as candidate-selection validation, not independent final testing.
 
-## Install and run
+## Setup and safe reproduction
 
-Use a Python environment compatible with Qiskit, Qiskit Aer, NumPy, SciPy, Matplotlib, Pandas, Plotly, and Streamlit. The project was validated on **Python 3.13.9, Qiskit 2.4.0, and Qiskit Aer 0.17.2** on macOS; `requirements-research.txt` installs the repository's declared dependencies.
+Run these commands in your own chosen parent directory. A new environment avoids altering an existing installation. Requirements are not pinned; recorded environments are tested configurations, not compatibility guarantees. This documentation audit ran on Windows with Python 3.14.7, Qiskit 2.5.2 and Aer 0.17.2. No IBM account is required for the local dashboard.
 
-```bash
-# From the cloned repository root
-python -m pip install -r requirements-research.txt
-python -m unittest discover -s tests -p "test_*.py" -v
-python -m streamlit run app.py
+PowerShell first-time setup:
+
+```powershell
+git clone https://github.com/zaminty13/Qompute-2026-Semiclassical.git
+Set-Location Qompute-2026-Semiclassical
+py -m venv .venv
+.\.venv\Scripts\python.exe -m pip install -r requirements-research.txt
+.\.venv\Scripts\python.exe -B -m unittest discover -s tests -p 'test_*.py' -v
+.\.venv\Scripts\python.exe -m streamlit run app.py
 ```
 
-The sidebar will show all three app pages. No IBM account or external quantum hardware is required.
-
-### Reproduce the numerical research results
+POSIX first-time setup:
 
 ```bash
-# Rebuild the synthesis figures and saved research report
+git clone https://github.com/zaminty13/Qompute-2026-Semiclassical.git
+cd Qompute-2026-Semiclassical
+python3 -m venv .venv
+.venv/bin/python -m pip install -r requirements-research.txt
+.venv/bin/python -B -m unittest discover -s tests -p 'test_*.py' -v
+.venv/bin/python -m streamlit run app.py
+```
+
+In an already configured environment, inspect committed results or launch Streamlit directly. The full suite checks frozen-candidate behavior and provenance without retraining or replacing published results. Dashboard controls can request new computations; inspecting its saved results does not require optimization.
+
+To reproduce survival outputs safely, run from the repository root with that environment's Python. These PowerShell commands use new temporary destinations; both scripts refuse to overwrite existing destinations.
+
+```powershell
+$studyOutput = Join-Path $env:TEMP ('pulsewise-survival-' + [guid]::NewGuid())
+.\.venv\Scripts\python.exe -B src/plot_rb.py --seed 2026 --trials 512 --output $studyOutput
+$comparisonOutput = Join-Path $env:TEMP ('pulsewise-comparison-' + [guid]::NewGuid() + '.csv')
+.\.venv\Scripts\python.exe -B src/compare_rb_selector.py --seed 2026 --trials 512 --output $comparisonOutput
+```
+
+The following generators write fixed repository paths. Run them only in a disposable checkout or copy, using its configured Python:
+
+```text
 python src/plot_research.py --quick
-
-# Rebuild the circuit, multilevel, and stress-test results
 python src/build_option_b.py
-
-# Additionally execute 45 explicit Qiskit Aer circuits, including X^32
 python src/build_option_b.py --qiskit
 ```
 
-Outputs appear in `results/research/` and `results/option_b/`. The builder uses the frozen `results/research/optimization_report.json` control candidate for the Option B study; it does not retrain the optimizer. The Qiskit job uses **2,048 shots per circuit** by default. The 45 circuits comprise five candidates (including ideal) times one identity circuit and eight parity-input circuits.
+`plot_research.py --quick` reruns optimization with a reduced budget and overwrites `results/research/optimization_report.json`; it does not guarantee reproduction of the frozen candidate. `build_option_b.py` consumes that report and writes `results/option_b/`; it has no output-directory option. Running optimization first can invalidate comparisons with frozen outputs. The optional `--qiskit` run executes 45 Aer circuits with 2,048 shots each by default. Agreement checks channel execution and sampling, not the truth of the physical noise model. Parity circuits use ideal CNOTs, initialization and readout.
 
-The Aer circuits are constructed from the **same modeled quantum channels** as the mathematical predictions. Matching shot statistics is a **code/execution consistency check**, not an independent test of the physical noise assumptions.
+## Scope, impact, and Track 3
 
-## Methods and limitations
+Students and small research teams can use these comparisons to ask whether added pulse complexity is justified before spending scarce device access on a candidate. Reporting duration, segment count and failures makes the tradeoff inspectable. A shorter modeled waveform alone does not demonstrate lower cloud costs or energy consumption.
 
-- **Two-level controls:** Piecewise rectangular, phase-controlled X rotations evaluated with Markovian Lindblad T₁/T₂ noise, amplitude errors, and detuning. Total composite-pulse duration is counted.
-- **Optimizer:** Classical SciPy differential evolution exploration plus BB1-seeded **SLSQP constrained local optimization** of five segment angles and phases. A small training uncertainty set is separated from held-out samples. No proof of globally optimal duration is claimed.
-- **Known-answer experiment:** Repeated modeled noisy X channels implement X^N; even N should return `|0⟩` to `|0⟩`. Calibration offsets are held fixed across each circuit.
-- **Parity example:** Three-bit parity with noise on selected X input preparations, but **ideal CNOT, initialization, and readout**. It is a limited circuit demonstration, not a full noise benchmark of an algorithm on hardware.
-- **Multilevel test:** A coherent pedagogical four-dimensional surrogate; no calibrated superconducting-device Hamiltonian and no claim of a validated Gridium gate.
-- **Hardware boundary:** We do not create hardware-executable IBM pulse schedules, characterize a physical processor, demonstrate error correction, or measure gate performance on a real QPU. Our techniques explore **error suppression** and model-aware pulse selection.
+Access to calibrated hardware and specialist control knowledge remains uneven. Simulation can lower the entry cost of exploring hypotheses, while an uncalibrated model can also give false confidence. Before hardware use, the team would need measured noise and drift, bandwidth and drive constraints, realistic leakage characterization, and validation on the intended processor. There are no hardware-executable pulse schedules or error-correction claims here.
 
-The multilevel analysis is **Gridium-inspired** in the sense of borrowing broader ideas from superconducting-qubit control and leakage-aware modeling. It does **not** reproduce Gridium's four-mode Hamiltonian or claim its numerical results. Inspiration from external research and direct use of source code must be distinguished when presenting the project.
+The [official Track 3 challenge](https://github.com/sandraalhames/Qompute-2026#your-challenge-make-a-quantum-result-more-trustworthy) maps to the project as follows:
 
-## Impact and responsible reporting
+| Track 3 requirement | Implemented evidence |
+| --- | --- |
+| Experiment with a known answer | [X-depth and parity tests](src/option_b_benchmarks.py) |
+| Ideal and noisy baselines | [circuit data](results/option_b/known_answer_circuit.csv), [Aer checks](results/option_b/qiskit_aer_validation.json) |
+| Error-handling strategy | [composite controls](src/pulses.py), [sample-constrained synthesis](src/research_synthesis.py) |
+| Improvement, cost and implications | Circuit table above, [stress checks](results/option_b/optimizer_stress_test.csv), model limitations |
 
-Quantum-computing access, execution time, and calibration resources are limited. Treating a simulated single-gate fidelity as a hardware guarantee can waste time and mislead downstream analyses. PulseWise illustrates the value of **reporting operating conditions, resource costs, model mismatch, and negative results**, alongside any apparent speedup.
-
-## Repository map
-
-- `src/` — pulse dynamics, decoherence, selection, synthesis, leakage, Aer checks, and result generators.
-- `tests/` — numerical, physics, Qiskit, and regression tests.
-- `pages/` — Research Lab and Reliability Benchmarks Streamlit pages.
-- `results/selector/`, `results/research/`, `results/option_b/` — reproducible figures, tabular exports, and experiment metadata.
-- [`README_RESEARCH.md`](README_RESEARCH.md) — synthesis and surrogate model details.
-- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — implementation/experimental workflow diagrams.
-- [`docs/FIGURE_GUIDE.md`](docs/FIGURE_GUIDE.md) — figure-by-figure explanation and presentation guidance.
-- [`REFERENCES.md`](REFERENCES.md) — scientific literature and Gridium provenance.
-- [`THIRD_PARTY_NOTICES.md`](THIRD_PARTY_NOTICES.md) — dependency licenses and usage notices.
-- [`docs/OPTION_B_INTEGRATION.md`](docs/OPTION_B_INTEGRATION.md) — benchmark definitions and scientific handoff.
-- [`results/option_b/NUMERICAL_FINDINGS.md`](results/option_b/NUMERICAL_FINDINGS.md) — precise frozen benchmark metrics.
-
-**Team Semiclassical — Qompute 2026.** See the Git history and pull requests for implementation provenance and individual contributions.
+The challenge does not mandate standard Clifford RB. Technical evidence does not complete the submission: the [official instructions](https://github.com/sandraalhames/Qompute-2026#submission-details-and-challenges) also require a 5–10-minute video and repository submission. No presentation link is supplied here. See [third-party notices](THIRD_PARTY_NOTICES.md) and Git history for software attribution and contributions; public visibility does not assign a license to the team's source.
