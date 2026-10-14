@@ -1,7 +1,6 @@
 """Judges' view: match circuit, multilevel, and stress-testing evidence."""
 from __future__ import annotations
 
-import json
 from pathlib import Path
 import sys
 
@@ -14,38 +13,29 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from option_b_benchmarks import (
     CANDIDATES, LABELS, shared_multilevel_comparison,
-    circuit_depth_benchmark, qiskit_aer_circuit_checks)
+    qiskit_aer_circuit_checks)
+from result_provenance import load_report, verify_results, waveform_id
 
 st.set_page_config(page_title='PulseWise | Reliability Benchmarks',page_icon='🔬',layout='wide')
 
 COLORS={'primitive':'#65b5ed','BB1':'#1AC1A3','CORPSE':'#c495fa','synthesized':'#ff9f54'}
 CASES=('zero systematic bias','amplitude +5%','detuning +0.04 Ω','combined corner')
 
-@st.cache_data(show_spinner=False)
-def load_research():
-    paths=[ROOT/'results'/'option_b'/'research_summary.json']
-    for path in paths:
-        if path.exists():
-            return json.loads(path.read_text(encoding='utf-8'))
-    return None
-
-@st.cache_data(show_spinner=False)
-def frozen_report():
-    for path in (ROOT/'results'/'research'/'optimization_report.json',
-                 ROOT/'results'/'option_b'/'baseline_optimizer_report.json'):
-        if path.exists():
-            return json.loads(path.read_text(encoding='utf-8'))
-    return None
-
 st.title('PulseWise / Reliability Benchmarks')
 st.caption('Team Semiclassical · Qompute 2026 · Model-based quantum reliability, not hardware calibration')
 st.markdown('### Does a high single-gate fidelity actually make a quantum computation trustworthy?')
 
-results=load_research()
-report=frozen_report()
-if results is None or report is None:
-    st.error('The frozen benchmark results have not been generated. From repository root, run `python src/build_option_b.py`.')
+try:
+    report=st.session_state.get('research_report')
+    if report is None:
+        report=load_report(ROOT)
+    results=verify_results(ROOT,report)
+except (OSError, ValueError, KeyError, TypeError) as exc:
+    st.error(f'Reliability results unavailable or incompatible: {exc}')
+    st.info('Saved results are hidden. Use the matching saved research report, or explicitly generate results for the new waveform before presenting them.')
     st.stop()
+active_id=waveform_id(report)
+st.caption('Verified waveform/configuration SHA-256: '+active_id)
 
 st.warning('**Key discovery:** A pulse can satisfy the optimizer’s single-gate fidelity constraint yet perform poorly after repeated coherent errors. One model’s winner is not automatically another model’s winner.')
 
@@ -54,6 +44,10 @@ st.caption('Every gate uses the identical noise-affected control channel. The ca
 case=st.selectbox('Choose the simulated control-error regime',CASES,index=3)
 data=[r for r in results['depth_results'] if r['case']==case]
 selected=[r for r in data if r['depth']==32]
+st.caption(f"This circuit case: amplitude error {100*selected[0]['amplitude_error']:+.1f}%, "
+           f"detuning Delta/Omega = {selected[0]['detuning_over_omega']:+.3f}, "
+           f"T1 = {report['config']['t1_ns']/1000:g} us, T2 = {report['config']['t2_ns']/1000:g} us; "
+           f"shared Omega = pi/({report['config']['primitive_ns']:g} ns). All values are illustrative simulations.")
 columns=st.columns(4)
 for col,name in zip(columns,CANDIDATES):
     row=next(r for r in selected if r['candidate']==name)
@@ -101,30 +95,32 @@ with ml2:
     st.dataframe(pd.DataFrame([{
         'Pulse':r['label'],'Logical fidelity (%)':round(100*r['fidelity_unconditional'],3),
         'Final leakage (%)':round(100*r['final_leakage'],3),
-        'Peak leakage (%)':round(100*r['peak_leakage'],3),
+        'Sampled peak leakage (%)':round(100*r['peak_leakage'],3),
         'Duration (ns)':round(r['duration_ns'],2)} for r in ml]),
         use_container_width=True,hide_index=True)
     graph=go.Figure()
     for r in ml:
-        graph.add_trace(go.Bar(name=r['label'],x=['Logical fidelity','Final leakage','Peak leakage'],
+        graph.add_trace(go.Bar(name=r['label'],x=['Logical fidelity','Final leakage','Sampled peak leakage'],
             y=[100*r['fidelity_unconditional'],100*r['final_leakage'],100*r['peak_leakage']],
             marker_color=COLORS[r['candidate']]))
     graph.update_layout(barmode='group',height=340,yaxis_title='Percent (%)',
                         margin=dict(l=5,r=5,t=10,b=15),
                         legend=dict(orientation='h',y=-.25))
     st.plotly_chart(graph,use_container_width=True)
+st.caption('Leakage maxima use 18 samples per segment, including segment endpoints; they are not continuous-time bounds.')
 st.info('The model is useful precisely because it can **falsify** an apparently excellent two-level recommendation. It does not establish actual device performance.')
 
 st.divider()
 st.header('3. Did the synthesized pulse generalize?')
-st.caption('The frozen waveform was evaluated without retraining on 31 × 31 independent dense points, 512 new random in-domain points, and 512 deliberately shifted out-of-domain calibration points.')
+st.caption('The frozen waveform was evaluated without retraining on a subsequent dense grid (which includes training nodes), new random in-domain points, and deliberately shifted out-of-domain calibration points. These are separate from the 96 validation samples used during selection; table counts describe this saved run.')
 scenarios={'dense_in_domain':'Dense in-domain grid',
            'new_random_in_domain':'Independent in-domain random points',
            'shifted_calibration_out_of_domain':'Shifted calibration (out-of-domain)'}
 stress=pd.DataFrame([{'Regime':scenarios[r['scenario']],
                       'Pulse':LABELS[r['candidate']],
+                      'Samples':r['n_points'],
                       'Worst fidelity (%)':round(100*r['min_fidelity'],4),
-                      'Below 99.7% (%)':round(100*r['fraction_below_threshold'],2),
+                      f"Below {100*report['config']['min_fidelity']:.2f}% (%)":round(100*r['fraction_below_threshold'],2),
                       'Pass all sampled':'YES' if r['passes_all_sampled'] else 'NO'}
                       for r in results['optimizer_stress']])
 st.dataframe(stress,hide_index=True,use_container_width=True)
@@ -142,6 +138,9 @@ if st.button('▶ Run 45 Aer circuits (including X^32)',type='primary'):
         st.error(f'Aer execution failed: {error}')
 
 q=st.session_state.get('option_b_aer_checks')
+if q is not None and q.get('waveform_id') != active_id:
+    st.warning('Previous Aer results are incompatible with this waveform/configuration and are hidden. Rerun the Aer check.')
+    q=None
 if q is not None:
     checks=sum(bool(r['within_5_sigma_plus_sampling_floor']) for r in q['cases'])
     if q['all_consistent']:

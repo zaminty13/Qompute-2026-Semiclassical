@@ -16,14 +16,16 @@ feature branch, or special installation process is needed.
 ```bash
 python -m pip install -r requirements-research.txt
 python -m unittest discover -s tests -p "test_*.py" -v
-python src/plot_research.py --quick
 python -m streamlit run app.py
 ```
 
 Open **Research Lab** in Streamlit. The higher-budget `python src/plot_research.py`
 run explores further, but may find a different feasible candidate; avoid
-mixing newly generated optimization results with the frozen Option B report
-unless you explicitly document and retest the change.
+mixing newly generated optimization results with the frozen Option B report.
+The dashboard now rejects incompatible saved results by waveform/configuration hash.
+See [the integration notes](docs/OPTION_B_INTEGRATION.md) for a non-destructive
+verification command and the selected historical report. No optimization is needed
+to open the saved demonstration.
 
 ## Scientifically meaningful main experiment
 
@@ -45,10 +47,16 @@ available to trivially recenter the waveform.
    local refinement initialized from an *exactly equivalent, split BB1* seed.
    The SLSQP constraint enforces ≥99.7% on the 3×3 training grid with a small
    numerical safety margin. This is a **local candidate search**, not proof of
-   a globally optimal pulse. Failed candidates are reported, not discarded.
-4. **Held-out evaluation:** 96 additional samples (72 unseen points on a 9×9
+   a globally optimal pulse. The advertised requirement is 0.997; the internal
+   SLSQP safety target is 0.99703. The saved candidate passes the advertised
+   requirement but slightly misses the safety target. Future runs record solver
+   termination and constraint residuals; historical solver metadata is unavailable.
+   Failed candidates are reported, not discarded.
+4. **Selection validation:** 96 additional samples (72 unseen points on a 9×9
    boundary-inclusive grid plus 24 seeded interior random points). **No**
-   held-out fidelities enter the optimizer objective or constraints.
+   validation fidelities enter the optimizer objective or constraints. However, they
+   determine candidate eligibility and break duration ties; this is not an untouched
+   final test set. The subsequent dense grid and new random stress tests are separate.
 5. **Physics:** each rectangular segment is evolved with the exact
    time-independent Markovian Lindblad propagator of the team's `decoherence.py`
    two-level model. A formula for qubit average gate fidelity to X is used in
@@ -64,7 +72,7 @@ available to trivially recenter the waveform.
 **Frozen quick-run observation (SciPy; subsequently checked on the team’s Mac):** the synthesized candidate
 achieved about 345.68 ns, versus 500 ns for BB1, while its minimum fidelity was
 about 99.7027% over the nine training samples and 99.7193% across 96 disjoint
-held-out samples. A further 31×31 scan had minimum ~99.7027%. Thus the
+validation samples. A further 31×31 scan had minimum ~99.7027%. Thus the
 candidate was about 30.9% shorter *under this specific modeled scenario*.
 These remain model calculations; the Mac-based tests and Qiskit circuit checks
 confirm implementation consistency, not hardware performance. Another noise box,
@@ -81,7 +89,9 @@ not a Gridium circuit model or a validated transmon spectrum.
 
 We compute coherent 4×4 unitary evolution, unconditional logical-state averaged
 fidelity to X (leakage counts as failure), final mean population outside the
-computational subspace, and **peak** mean leakage during all pulse segments.
+computational subspace, and the maximum mean leakage over **sampled times** during all pulse segments.
+The dashboard uses 18 steps per segment; the research figure uses 8 and the Option B
+anharmonicity sweep uses 12. These are not continuous-time maxima.
 Because this study excludes T1/T2 decoherence, **do not compare its absolute
 fidelities directly to the noisy two-level performance above**. It tests a
 model-assumption failure: a seemingly excellent two-level pulse may drive
@@ -90,7 +100,7 @@ unwanted levels. The second Aer experiment embeds the 4×4 model as a two-qubit
 
 Four generated figures in `results/research/`:
 
-- `synthesis_speed_robustness.png` — held-out sampled fidelity vs full duration.
+- `synthesis_speed_robustness.png` — selection-validation sampled fidelity vs full duration.
 - `synthesis_fidelity_landscape.png` — BB1 and new pulse sensitivity surfaces.
 - `multilevel_leakage_stress_test.png` — multilevel conditional caveat;
   *coherent* logical fidelity and transient leakage vs anharmonicity.
@@ -103,8 +113,7 @@ angles/phases, 9+96 samples, all candidates, winner, Qiskit consistency checks),
 ## What we can and cannot claim
 
 **Can:** Qiskit-backed controlled simulations of suppression-vs-duration;
-reproducible sample-constrained pulse synthesis; an independently tested
-uncertainty set; evidence for model sensitivity to leakage; circuit execution
+reproducible sample-constrained pulse synthesis; subsequent random stress checks outside the selection sample; evidence for model sensitivity to leakage; circuit execution
 checks in Qiskit Aer; transparent failure cases and modeling assumptions.
 
 **Cannot:** Guaranteed fidelity over all continuous uncertainty parameters,
@@ -122,7 +131,7 @@ multilevel failure modes. **Societal:** people using limited shared quantum
 resources should see *when no available operation meets a reliability goal*,
 not hide negative results. The runtime/fidelity tradeoff influences access,
 resource consumption, and how honestly researchers communicate results.
-**Presentation:** demonstrate a control designed by the app, its held-out
+**Presentation:** demonstrate a control designed by the app, its validation
 comparison, its temporary leakage trajectory, and why neither result should be
 oversold.
 

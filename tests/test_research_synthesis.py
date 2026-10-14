@@ -5,7 +5,7 @@ import unittest
 import numpy as np
 
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/'src'))
-from research_synthesis import (Experiment, X, BASELINES, channel, evaluate,
+from research_synthesis import (Experiment, BASELINES, channel, evaluate,
     fidelity_from_superop, segment_duration_ns, uncertainty_points, synthesize,
     qiskit_reference_check)
 

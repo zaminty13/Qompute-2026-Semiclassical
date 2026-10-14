@@ -7,7 +7,7 @@ checks are provided explicitly; this module is not a hardware pulse scheduler.
 Candidate design: five sequential rectangular segments, phase and duration
 variable, *fixed* Rabi rate omega=pi/primitive_ns (same as X/BB1/CORPSE).
 The optimizer sees only a small TRAIN uncertainty mesh. Evaluation reports a
-separate held-out mesh (plus deterministic interior random points).
+separate validation mesh used for candidate selection.
 """
 from __future__ import annotations
 
@@ -18,6 +18,7 @@ from pathlib import Path
 import numpy as np
 from scipy.linalg import expm
 from scipy.optimize import differential_evolution
+from result_provenance import waveform_id
 
 X = np.array([[0., 1.], [1., 0.]], dtype=complex)
 Y = np.array([[0., -1j], [1j, 0.]], dtype=complex)
@@ -78,8 +79,8 @@ class Experiment:
 def uncertainty_points(ex: Experiment, *, held_out=False):
     """Pairs of (amplitude fraction, normalized detuning).
 
-    Train is a 3x3 Cartesian mesh. Holdout is interleaved 6x6 mesh plus
-    deterministic off-grid interior samples; train points are not reused.
+    Train is a 3x3 Cartesian mesh. Validation uses 72 other 9x9 grid nodes
+    and 24 random samples; train points are not reused.
     """
     if held_out:
         # Independent 9x9 grid including physical box boundaries; delete
@@ -176,6 +177,27 @@ def _seed_candidates():
     return [encode(bb),encode(primitive),encode(co)]
 
 
+def _solver_record(result, ex, train, bounds):
+    values = evaluate(_decode(result.x), ex, train)
+    lower, upper = np.asarray(bounds).T
+    safety_target = min(1., ex.min_fidelity + 3e-5)
+    return {
+        'success': bool(result.success),
+        'status': int(result.status) if hasattr(result, 'status') else None,
+        'message': str(result.message),
+        'iterations': int(result.nit) if hasattr(result, 'nit') else None,
+        'evaluations': int(result.nfev) if hasattr(result, 'nfev') else None,
+        'advertised_fidelity_requirement': ex.min_fidelity,
+        'slsqp_safety_target': safety_target,
+        'training_fidelities': values.tolist(),
+        'advertised_fidelity_residuals': (values - ex.min_fidelity).tolist(),
+        'slsqp_safety_residuals': (values - safety_target).tolist(),
+        'angle_budget_residual_pi': float(ex.angle_budget_pi - sum(result.x[:5])),
+        'lower_bound_residuals': (result.x - lower).tolist(),
+        'upper_bound_residuals': (upper - result.x).tolist(),
+    }
+
+
 def synthesize(ex: Experiment=Experiment(), *, maxiter=16,
                popsize=5, run_optimizer=True):
     """Deterministic candidate search, no claim of global optimality.
@@ -187,6 +209,7 @@ def synthesize(ex: Experiment=Experiment(), *, maxiter=16,
     seeds = _seed_candidates()
     bounds = [(0.08,2.10)]*5 + [(-np.pi,np.pi)]*5
     proposals = [(f'seed_{i}',seed) for i,seed in enumerate(seeds)]
+    solver_reports = {'status': 'not run'}
     if run_optimizer:
         if not isinstance(maxiter,int) or maxiter < 1 or popsize < 3:
             raise ValueError('Invalid optimization budget')
@@ -197,7 +220,7 @@ def synthesize(ex: Experiment=Experiment(), *, maxiter=16,
         proposals.append(('differential_evolution', result.x))
         # Local constrained synthesis starts from a *feasible calibrated BB1*.
         # Constraints apply at every TRAIN point. It is independently checked
-        # against the untouched holdout grid after optimization.
+        # against the validation grid used for candidate selection.
         from scipy.optimize import minimize
         adjusted_seed=seeds[0].copy()
         adjusted_seed[:5] /= (1+ex.amplitude_center)
@@ -209,6 +232,10 @@ def synthesize(ex: Experiment=Experiment(), *, maxiter=16,
                          {'type':'ineq','fun':lambda x: ex.angle_budget_pi-sum(x[:5])}],
             options={'maxiter':65,'ftol':1e-8})
         proposals.append(('BB1_constrained_synthesis',refined.x))
+        solver_reports = {
+            'differential_evolution': _solver_record(result, ex, train, bounds),
+            'SLSQP': _solver_record(refined, ex, train, bounds),
+        }
     candidates=[]
     for label,vec in proposals:
         segs=_decode(vec)
@@ -242,11 +269,14 @@ def synthesize(ex: Experiment=Experiment(), *, maxiter=16,
             label='reference'))
     qualifying = [r for r in candidates if r['train_pass'] and r['heldout_pass']]
     winner = min(qualifying,key=lambda r:(r['duration_ns'],-r['heldout_worst'])) if qualifying else None
-    return dict(config=asdict(ex),train_points=train.tolist(),
+    report = dict(config=asdict(ex),train_points=train.tolist(),
         heldout_points=held.tolist(), candidates=candidates,
         winner=winner['name'] if winner else None,
         n_train=int(len(train)),n_heldout=int(len(held)),
-        optimizer_ran=bool(run_optimizer),maxiter=maxiter,popsize=popsize)
+        optimizer_ran=bool(run_optimizer),maxiter=maxiter,popsize=popsize,
+        solver_reports=solver_reports)
+    report['waveform_id'] = waveform_id(report)
+    return report
 
 
 def qiskit_reference_check(segments, ex: Experiment, amp: float, det: float):

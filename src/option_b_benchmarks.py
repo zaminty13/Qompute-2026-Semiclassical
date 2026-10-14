@@ -17,6 +17,7 @@ import numpy as np
 
 from research_synthesis import BASELINES, Experiment, X, channel, segment_duration_ns
 from research_leakage import propagate
+from result_provenance import waveform_id
 
 CANDIDATES = ('primitive', 'BB1', 'CORPSE', 'synthesized')
 LABELS = {'primitive': 'Primitive X', 'BB1': 'BB1',
@@ -71,7 +72,8 @@ def shared_multilevel_comparison(report, *, primitive_ns=100.,
                      'segments':len(segments),
                      'fidelity_unconditional':out['fidelity_unconditional'],
                      'final_leakage':out['final_leakage'],
-                     'peak_leakage':out['peak_leakage']})
+                     'peak_leakage':out['peak_leakage'],
+                     'steps_per_segment':out['steps_per_segment']})
     return rows
 
 
@@ -272,7 +274,8 @@ def qiskit_aer_circuit_checks(report, *, shots=2048, seed=2026,
                         'aer_shot_probability':float(p),
                         'estimated_shot_standard_error':float(sigma),
                         'within_5_sigma_plus_sampling_floor':bool(abs(p-expected[i]) <= 5*sigma+5/shots)})
-    return {'shots_per_circuit':shots,'num_circuits':len(circuits),
+    return {'waveform_id':waveform_id(report),
+            'shots_per_circuit':shots,'num_circuits':len(circuits),
             'identity_depth':depth,
             'amplitude_error':float(amplitude_error),
             'detuning_over_omega':float(detuning_over_omega),

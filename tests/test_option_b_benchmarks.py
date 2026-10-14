@@ -1,5 +1,4 @@
 """Adversarial regression tests for the Option B reliability experiments."""
-import json
 from pathlib import Path
 import sys
 import unittest
@@ -14,12 +13,12 @@ from option_b_benchmarks import (
     circuit_depth_benchmark, stress_test_report, qiskit_aer_circuit_checks)
 from research_synthesis import Experiment, BASELINES, X, channel, segment_duration_ns
 
-REPORT_PATH=ROOT/'results'/'option_b'/'baseline_optimizer_report.json'
+from result_provenance import load_report
 
 class OptionBTests(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
-        cls.report=json.loads(REPORT_PATH.read_text(encoding='utf-8'))
+        cls.report=load_report(ROOT)
         cls.ex=Experiment(**cls.report['config'])
 
     def test_original_waveform_identity_and_fixed_amplitude(self):
@@ -27,7 +26,7 @@ class OptionBTests(unittest.TestCase):
         self.assertEqual(tuple(segs),('primitive','BB1','CORPSE','synthesized'))
         self.assertEqual(len(segs['synthesized']),5)
         self.assertTrue(np.allclose(segs['BB1'],BASELINES['BB1']))
-        self.assertAlmostEqual(segment_duration_ns(segs['synthesized'],self.ex),345.677183355,places=4)
+        self.assertAlmostEqual(segment_duration_ns(segs['synthesized'],self.ex),345.67860794758235,places=4)
 
     def test_no_fabricated_synthesized_result(self):
         with self.assertRaisesRegex(ValueError,'Missing unique'):

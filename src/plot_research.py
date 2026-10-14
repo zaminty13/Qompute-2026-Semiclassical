@@ -10,7 +10,6 @@ science or changing the old dashboard's 41-test selector behavior.
 from __future__ import annotations
 import argparse
 import csv
-import json
 from pathlib import Path
 import sys
 
@@ -20,7 +19,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 
 sys.path.insert(0,str(Path(__file__).resolve().parent))
-from research_synthesis import Experiment, synthesize, evaluate, uncertainty_points, save_report
+from research_synthesis import Experiment, synthesize, evaluate, save_report
 from research_leakage import propagate
 
 OUT=Path(__file__).resolve().parents[1]/'results'/'research'
@@ -82,11 +81,11 @@ def build(ex:Experiment,*,quick=False):
                     ha='right' if is_right else 'left',
                     textcoords='offset points',fontsize=10,color=c)
     ax.axhline(100*ex.min_fidelity,c='#b74f42',ls='--',label=f'Sampled threshold: {100*ex.min_fidelity:.2f}%')
-    ax.set(xlabel='Total drive duration (ns)',ylabel='Held-out worst sampled fidelity (%)',
+    ax.set(xlabel='Total drive duration (ns)',ylabel='Validation worst sampled fidelity (%)',
            title='A pulse the algorithm designs vs. standard sequences')
     ax.legend(loc='upper left')
     ax.grid(alpha=.2)
-    ax.text(.01,.07,'96 held-out points · sampled, not a continuous guarantee',
+    ax.text(.01,.07,'96 selection-validation points · no continuous guarantee',
             transform=ax.transAxes,fontsize=9,color='#4b5661')
     fig.savefig(OUT/'synthesis_speed_robustness.png',dpi=220,facecolor='white')
     plt.close(fig)
@@ -138,7 +137,8 @@ def build(ex:Experiment,*,quick=False):
         axs[0].plot(alpha,100*f,lw=2.3,label=row['name'],color=_color(row['name']))
         axs[1].plot(alpha,100*leak,lw=2.3,label=row['name'],color=_color(row['name']))
         leakage_rows.extend({'candidate':row['name'],'alpha_over_omega':float(a),
-                    'unconditional_fidelity':float(v), 'peak_leakage':float(l)}
+                    'unconditional_fidelity':float(v), 'peak_leakage':float(l),
+                    'steps_per_segment':8}
                    for a,v,l in zip(alpha,f,leak))
     for ax in axs:
         ax.set_xlabel('Anharmonicity α/Ω (toy-model setting)')
@@ -146,8 +146,8 @@ def build(ex:Experiment,*,quick=False):
         ax.grid(alpha=.2)
     axs[0].set(ylabel='Coherent unconditional logical fidelity (%)',
                title='Logical errors, counting leakage as failure')
-    axs[1].set(ylabel='Peak population outside logical subspace (%)',
-               title='Transient leakage can be substantial')
+    axs[1].set(ylabel='Sampled peak leakage (%)',
+               title='Sampled at 8 steps/segment; no continuous bound')
     axs[0].legend(fontsize=8,loc='lower left')
     fig.suptitle('Multilevel reality check — illustrative 4D surrogate, no decoherence',fontsize=14)
     fig.savefig(OUT/'multilevel_leakage_stress_test.png',dpi=220,facecolor='white')
@@ -190,6 +190,6 @@ if __name__=='__main__':
     print('Winner:',report['winner'])
     for row in report['candidates']:
         print(f"{row['name']:29s} T={row['duration_ns']:7.2f} ns  "
-              f"train={row['train_worst']:.6%}  held={row['heldout_worst']:.6%} "
+              f"train={row['train_worst']:.6%}  validation={row['heldout_worst']:.6%} "
               f"passes={row['train_pass'] and row['heldout_pass']}")
     print('Generated science and figures:',OUT.resolve())

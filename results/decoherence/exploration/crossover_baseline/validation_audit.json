@@ -1,0 +1,26 @@
+{
+  "refined_roots": 9,
+  "maximum_fresh_residual": 3.4572344986827375e-13,
+  "root_channels_cptp": true,
+  "fresh_probe_steps": {
+    "amplitude_fraction": 1e-05,
+    "detuning_rad_per_ns": 1e-06
+  },
+  "all_fresh_probes_change_preference": true,
+  "fine_grid_row_counts": {
+    "amplitude_baseline_2001.csv": 2001,
+    "amplitude_coherent_2001.csv": 2001,
+    "amplitude_stronger_2001.csv": 2001,
+    "amplitude_weaker_2001.csv": 2001,
+    "detuning_baseline_2001.csv": 2001,
+    "detuning_coherent_2001.csv": 2001,
+    "detuning_stronger_2001.csv": 2001,
+    "detuning_weaker_2001.csv": 2001
+  },
+  "positive_negative_fidelity_differences": {
+    "detuning_baseline_2001.csv": 6.661338147750939e-16,
+    "detuning_coherent_2001.csv": 6.661338147750939e-16,
+    "detuning_stronger_2001.csv": 4.440892098500626e-16,
+    "detuning_weaker_2001.csv": 5.551115123125783e-16
+  }
+}

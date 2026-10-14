@@ -1,0 +1,134 @@
+{
+  "nominal_primitive_duration_ns": 100.0,
+  "omega_rad_per_ns": 0.031415926535897934,
+  "cases": {
+    "stronger": [
+      "15000.0",
+      "10000.0"
+    ],
+    "baseline": [
+      "30000.0",
+      "20000.0"
+    ],
+    "weaker": [
+      "60000.0",
+      "40000.0"
+    ],
+    "coherent": [
+      "inf",
+      "inf"
+    ]
+  },
+  "modes": {
+    "amplitude": [
+      "BB1",
+      0.0,
+      0.2
+    ],
+    "detuning": [
+      "CORPSE",
+      -0.01,
+      0.01
+    ]
+  },
+  "coarse_points": 1001,
+  "fine_points": 2001,
+  "fidelity_tolerance": 1e-10,
+  "root_absolute_tolerance": 1e-12,
+  "root_relative_tolerance": 1e-12,
+  "grid_validation": [
+    {
+      "mode": "amplitude",
+      "case": "stronger",
+      "coarse_roots": 1,
+      "fine_roots": 1,
+      "coarse_spacing": 0.0002,
+      "fine_spacing": 0.0001,
+      "root_shift_max": 1.2141676553056868e-13,
+      "tolerance_tie_samples": 0
+    },
+    {
+      "mode": "amplitude",
+      "case": "baseline",
+      "coarse_roots": 1,
+      "fine_roots": 1,
+      "coarse_spacing": 0.0002,
+      "fine_spacing": 0.0001,
+      "root_shift_max": 5.995204332975845e-15,
+      "tolerance_tie_samples": 0
+    },
+    {
+      "mode": "amplitude",
+      "case": "weaker",
+      "coarse_roots": 1,
+      "fine_roots": 1,
+      "coarse_spacing": 0.0002,
+      "fine_spacing": 0.0001,
+      "root_shift_max": 2.8171909249863347e-15,
+      "tolerance_tie_samples": 0
+    },
+    {
+      "mode": "amplitude",
+      "case": "coherent",
+      "coarse_roots": 0,
+      "fine_roots": 0,
+      "coarse_spacing": 0.0002,
+      "fine_spacing": 0.0001,
+      "root_shift_max": 0.0,
+      "tolerance_tie_samples": 1
+    },
+    {
+      "mode": "detuning",
+      "case": "stronger",
+      "coarse_roots": 2,
+      "fine_roots": 2,
+      "coarse_spacing": 2e-05,
+      "fine_spacing": 1e-05,
+      "root_shift_max": 8.604228440844963e-16,
+      "tolerance_tie_samples": 0
+    },
+    {
+      "mode": "detuning",
+      "case": "baseline",
+      "coarse_roots": 2,
+      "fine_roots": 2,
+      "coarse_spacing": 2e-05,
+      "fine_spacing": 1e-05,
+      "root_shift_max": 1.630163018462305e-14,
+      "tolerance_tie_samples": 0
+    },
+    {
+      "mode": "detuning",
+      "case": "weaker",
+      "coarse_roots": 2,
+      "fine_roots": 2,
+      "coarse_spacing": 2e-05,
+      "fine_spacing": 1e-05,
+      "root_shift_max": 2.8189256484623115e-16,
+      "tolerance_tie_samples": 0
+    },
+    {
+      "mode": "detuning",
+      "case": "coherent",
+      "coarse_roots": 0,
+      "fine_roots": 0,
+      "coarse_spacing": 2e-05,
+      "fine_spacing": 1e-05,
+      "root_shift_max": 0.0,
+      "tolerance_tie_samples": 1
+    }
+  ],
+  "reproduction_command": ".\\.venv\\Scripts\\python.exe src\\analyze_crossovers.py --points 1001 --run-name day2 --no-show",
+  "elapsed_seconds": 27.137070499826223,
+  "versions": {
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "qiskit": "2.5.2",
+    "matplotlib": "3.11.2"
+  },
+  "source_sha256": {
+    "src\\pulses.py": "b1168e6eab26c3a272c65f0b9d19b79e8f887c21dbcb3163309149d41381e14b",
+    "src\\decoherence.py": "b2a2462a7ce8d62c14c2ffcda19eb6db88a4a968226f9d07fe614352d6c9d3fe",
+    "src\\analyze_crossovers.py": "8dc11a53202ee4169bac0cc0a7794cbfc6b5e52898cb35cc8d5875e7e5a00321"
+  }
+}

@@ -12,8 +12,9 @@ import streamlit as st
 
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
-from research_synthesis import Experiment, synthesize, uncertainty_points, evaluate
+from research_synthesis import Experiment, synthesize
 from research_leakage import propagate
+from result_provenance import load_report, waveform_id, optimizer_reporting
 
 st.set_page_config(page_title='PulseWise | Research Lab',page_icon='🧬',layout='wide')
 st.title('🧬 PulseWise / Research Lab')
@@ -39,7 +40,7 @@ ex=Experiment(amplitude_center=0.,amplitude_width=amin/100,
               t1_ns=1000*t1us,t2_ns=1000*t2us)
 
 if st.button('🧪 Synthesize and stress-test new controls',type='primary'):
-    with st.spinner('Optimizing phased segments, then evaluating untouched holdout conditions...'):
+    with st.spinner('Optimizing phased segments, then evaluating validation conditions used for selection...'):
         try:
             report=synthesize(ex,maxiter=4 if effort.startswith('Quick') else 16,
                               popsize=3 if effort.startswith('Quick') else 5)
@@ -49,19 +50,22 @@ if st.button('🧪 Synthesize and stress-test new controls',type='primary'):
 
 report=st.session_state.get('research_report')
 if report is None:
-    # Instant reproducible opening view for judges. The Run button above always
-    # recomputes the analysis with current settings; no fake live calculation.
-    stored=ROOT/'results'/'research'/'optimization_report.json'
-    if stored.is_file():
-        import json
-        report=json.loads(stored.read_text(encoding='utf-8'))
-        st.caption('Showing a precomputed, reproducible demonstration. Press the synthesis button to rerun the optimizer for current settings.')
+    try:
+        report=load_report(ROOT)
+        st.caption('Showing the saved research report. Synthesis uses the current sidebar settings.')
+    except (OSError, ValueError, KeyError, TypeError) as exc:
+        st.warning(f'Saved research report unavailable: {exc}')
 if report is None:
     st.markdown('### Ready to synthesize')
     st.write('Press the button above. The algorithm explores five-piece rectangular control waveforms, limited to the same maximum drive strength as X/BB1/CORPSE, and compares them under matched decoherence and control errors.')
     st.write('The work is CPU-based and may take tens of seconds. For reproducibility, use `python src/plot_research.py --quick` to generate a frozen report and shareable figures.')
     st.stop()
 
+st.caption('Waveform/configuration SHA-256: '+waveform_id(report))
+with st.expander('Solver reporting and fidelity requirements'):
+    st.write('The advertised requirement is '+str(report['config']['min_fidelity'])+
+             '; the internal SLSQP safety target is '+str(min(1.,report['config']['min_fidelity']+3e-5))+'.')
+    st.json(optimizer_reporting(report))
 last=report['config']
 if (last['amplitude_width'] != ex.amplitude_width or
     last['detuning_width_over_omega'] != ex.detuning_width_over_omega or
@@ -70,7 +74,6 @@ if (last['amplitude_width'] != ex.amplitude_width or
     st.warning('The displayed results are from your previous experiment. Rerun synthesis to reflect sidebar changes.')
 rex=Experiment(**last)
 rows=report['candidates']
-qualified=[r for r in rows if r['train_pass'] and r['heldout_pass']]
 winner=next((r for r in rows if r['name']==report['winner']),None)
 ref=next(r for r in rows if r['name']=='BB1')
 
@@ -78,12 +81,12 @@ m1,m2,m3,m4=st.columns(4)
 m1.metric('Fastest passing candidate',winner['name'] if winner else 'None')
 m2.metric('Fastest duration',f"{winner['duration_ns']:.1f} ns" if winner else '—')
 m3.metric('BB1 reference duration','500.0 ns')
-m4.metric('Held-out tested points',str(report['n_heldout']))
+m4.metric('Validation points used for selection',str(report['n_heldout']))
 if winner is None:
-    st.error('No candidate passes both TRAIN and HOLDOUT under the current configuration. Do not claim an optimized winner.')
+    st.error('No candidate passes both TRAIN and VALIDATION under the current configuration. Do not claim an optimized winner.')
 elif winner['label']=='synthesized':
     savings=100*(1-winner['duration_ns']/ref['duration_ns'])
-    st.success(f"Synthesized candidate passed the sampled fidelity threshold at {winner['duration_ns']:.1f} ns — {savings:.1f}% shorter than standard BB1 in this model. Both training and held-out checks passed.")
+    st.success(f"Synthesized candidate passed the sampled fidelity threshold at {winner['duration_ns']:.1f} ns — {savings:.1f}% shorter than standard BB1 in this model. Both training and validation checks passed.")
 else:
     st.info('A reference control or calibration adjustment is fastest in this scenario. The optimizer did not show a validated speed advantage.')
 
@@ -103,7 +106,7 @@ with left:
     fig.add_hline(y=100*rex.min_fidelity,line_dash='dash',line_color='#ef8c64',
                   annotation_text=f'Threshold {100*rex.min_fidelity:.2f}%')
     fig.update_layout(xaxis_title='Full control duration (ns)',
-                      yaxis_title='Held-out worst sampled fidelity (%)',
+                      yaxis_title='Validation worst sampled fidelity (%)',
                       height=430,legend=dict(orientation='h',y=-.25),margin=dict(l=10,r=10,t=10,b=10))
     st.plotly_chart(fig,use_container_width=True)
 with right:
@@ -111,11 +114,11 @@ with right:
     view=[dict(Candidate=r['name'],Duration_ns=round(r['duration_ns'],2),
                Nominal_pct=round(100*r['nominal_fidelity'],4),
                TRAIN_worst_pct=round(100*r['train_worst'],4),
-               HOLDOUT_worst_pct=round(100*r['heldout_worst'],4),
+               VALIDATION_worst_pct=round(100*r['heldout_worst'],4),
                Pass='YES' if r['train_pass'] and r['heldout_pass'] else 'NO')
           for r in rows]
     st.dataframe(pd.DataFrame(view),hide_index=True,use_container_width=True)
-    st.caption('TRAIN: nine corner/center conditions. HOLDOUT: 96 separate boundary/interior samples. Worst sampled does not certify a continuous bound.')
+    st.caption('TRAIN: nine corner/center conditions. VALIDATION: 96 separate boundary/interior samples used to select candidates and break duration ties. Subsequent dense/random stress tests are separate. No continuous bound is certified.')
     st.download_button('Download complete research report (JSON)',
                        __import__('json').dumps(report,indent=2),
                        file_name='pulsewise_research_report.json',mime='application/json')
@@ -157,7 +160,7 @@ with a2:
     r1,r2,r3=st.columns(3)
     r1.metric('Unconditional logical fidelity',f"{100*ml['fidelity_unconditional']:.2f}%")
     r2.metric('Final leakage',f"{100*ml['final_leakage']:.2f}%")
-    r3.metric('Peak leakage',f"{100*ml['peak_leakage']:.2f}%")
+    r3.metric('Sampled peak leakage',f"{100*ml['peak_leakage']:.2f}%")
     fig=go.Figure()
     fig.add_trace(go.Scatter(x=ml['times_ns'],y=np.array(ml['mean_leakage'])*100,
              name='Mean leakage',line=dict(color='#f5a764',width=3)))
@@ -168,6 +171,7 @@ with a2:
     fig.update_layout(height=350,xaxis_title='Time (ns)',yaxis_title='Leakage population (%)',
                       margin=dict(l=10,r=10,t=10,b=10))
     st.plotly_chart(fig,use_container_width=True)
+st.caption(f"Leakage maximum over sampled times: {ml['steps_per_segment']} steps per segment. This is not a continuous-time maximum.")
 st.warning('Important: This multilevel calculation is coherent (no T₁/T₂) and uses a **surrogate ladder**, not the physical Gridium Hamiltonian. Its absolute fidelities cannot be directly compared with the noisy two-level figures above. The lesson is that a two-level winner can fail when leakage is introduced.')
 
 st.header('3. Qiskit: circuit checks of the model')

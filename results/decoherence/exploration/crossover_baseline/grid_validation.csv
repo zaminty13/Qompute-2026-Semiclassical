@@ -1,0 +1,9 @@
+mode,case,coarse_roots,fine_roots,coarse_spacing,fine_spacing,root_shift_max,tolerance_tie_samples
+amplitude,stronger,1,1,0.0002,0.0001,1.2141676553056868e-13,0
+amplitude,baseline,1,1,0.0002,0.0001,5.995204332975845e-15,0
+amplitude,weaker,1,1,0.0002,0.0001,2.8171909249863347e-15,0
+amplitude,coherent,0,0,0.0002,0.0001,0.0,1
+detuning,stronger,2,2,2e-05,1e-05,8.604228440844963e-16,0
+detuning,baseline,2,2,2e-05,1e-05,1.630163018462305e-14,0
+detuning,weaker,2,2,2e-05,1e-05,2.8189256484623115e-16,0
+detuning,coherent,0,0,2e-05,1e-05,0.0,1

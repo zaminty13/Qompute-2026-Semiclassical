@@ -3,7 +3,6 @@
 Qiskit Aer shot checks are *not* independent hardware validation.
 """
 from __future__ import annotations
-import math
 import numpy as np
 from research_synthesis import X, channel, fidelity_from_superop
 
