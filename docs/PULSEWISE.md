@@ -7,7 +7,7 @@ Qiskit `SuperOp`, and `qiskit.quantum_info.average_gate_fidelity`.
 
 ## Quick start
 
-From the **repository root** on the `feature/decoherence`-based branch:
+From the **repository root** on the validated `main` branch:
 
 ```bash
 python -m pip install -r requirements.txt
@@ -58,12 +58,14 @@ All are simulated with a 100 ns primitive X and the Qiskit fidelity metric.
 - Average gate fidelity is not the same as single-input state fidelity.
 - An Aer simulation using an inserted Kraus channel validates channel handling,
   not an independently measured implementation of the underlying analog drive.
-- Qiskit Experiments randomized benchmarking should be added by the benchmarking
-  team member with **matched pulse-specific channels** for a meaningful comparison.
+- This selector is **not** randomized benchmarking. For our completed known-answer
+  X^32 and parity tests with Qiskit Aer, see [the architecture guide](ARCHITECTURE.md)
+  and [numerical findings](../results/option_b/NUMERICAL_FINDINGS.md). These tests
+  use modeled channels, not hardware data.
 
-## Reuse from Gridium
+## External research inspiration
 
-The method borrows Gridium's preference for constrained candidate selection,
-Pareto comparison, robustness sweeps, and reproducible analysis. It does **not**
-import the Gridium Hamiltonian or use its simulated gate fidelities as evidence
-for this distinct two-level model.
+Our robustness and leakage analyses were informed by broader ideas in quantum
+control and Gridium-related protected-qubit research. PulseWise does **not**
+import the Gridium Hamiltonian, code, or measured gate data. See the public
+sources and explicit attribution boundaries in [REFERENCES.md](../REFERENCES.md).
