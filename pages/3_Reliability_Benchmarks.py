@@ -166,6 +166,48 @@ if q is not None:
             pd.DataFrame(q['cases']).to_csv(index=False).encode('utf-8'),
             file_name='pulsewise_aer_results.csv',mime='text/csv')
 
+
+st.divider()
+with st.expander('Optional Quantum Rings simulator comparison',expanded=False):
+    st.write('Qiskit Aer vs an optional Quantum Rings simulator on the same '
+             'coherent repeated-Rx circuits. This is separate from the '
+             'T1/T2-and-detuning pulse experiment above.')
+    error=st.slider('Coherent Rx amplitude error (%)',0.,10.,5.,step=.5,key='optional_qr_error')
+    from quantum_rings_optional import DEPTHS, expected_probability, compare
+    if st.button('Run Aer comparison',key='run_optional_aer'):
+        try:
+            st.session_state['optional_qr_comparison']={'error':error,
+                'rows':compare(error/100)}
+        except Exception as exc:
+            st.error(f'Aer comparison failed: {exc}')
+    if st.button('Run Quantum Rings + Aer',key='run_optional_qr'):
+        try:
+            st.session_state['optional_qr_comparison']={'error':error,
+                'rows':compare(error/100,run_rings=True)}
+        except Exception as exc:
+            st.error(f'Optional Quantum Rings check unavailable: {exc}')
+    saved=st.session_state.get('optional_qr_comparison')
+    if saved and saved['error']==error:
+        rows=[]
+        for item in saved['rows']:
+            row={'Depth':item['depth'],'Theory P(0) (%)':round(100*item['theory'],2),
+                 'Aer P(0) (%)':round(100*item['aer'],2)}
+            if item['quantum_rings'] is not None:
+                row['Quantum Rings P(0) (%)']=round(100*item['quantum_rings'],2)
+            rows.append(row)
+        st.dataframe(pd.DataFrame(rows),hide_index=True)
+        st.line_chart(pd.DataFrame(rows).set_index('Depth'))
+        if 'Quantum Rings P(0) (%)' not in rows[0]:
+            st.info('Quantum Rings was not executed; only Aer and theory are shown.')
+        else:
+            st.success('Quantum Rings simulator returned measurement counts.')
+    else:
+        st.dataframe(pd.DataFrame([{'Depth':n,
+            'Theory P(0) (%)':round(100*expected_probability(n,error/100),2)}
+            for n in DEPTHS]),hide_index=True)
+    st.caption('Coherent amplitude error only. Not hardware validation. '
+               'See docs/QUANTUM_RINGS_OPTIONAL.md.')
+
 st.divider()
 st.subheader('Scientific scope and reproducibility')
 st.markdown('The optimizer was trained for average **single-gate** fidelity, not long-circuit success. The four-level model is a surrogate, not the physical Gridium Hamiltonian. The circuit benchmark neglects errors in CNOT/readout, and its calibration biases remain fixed during each circuit. None of these results are hardware measurements.')
