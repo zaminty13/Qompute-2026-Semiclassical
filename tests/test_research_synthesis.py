@@ -73,6 +73,26 @@ class ResearchSynthesisTests(unittest.TestCase):
 
 
 
+    def test_all_three_slsqp_seeds_are_compared(self):
+        # Run all local refinements with the same training set and constraints.
+        # A low DE budget keeps this smoke test reasonably bounded.
+        ex=Experiment(amplitude_center=0.,amplitude_width=.01,
+                      detuning_width_over_omega=.005,min_fidelity=.98)
+        out=synthesize(ex,maxiter=1,popsize=3)
+        by_name={c['name']:c for c in out['candidates']}
+        for name in ('BB1','primitive','CORPSE'):
+            label=f'{name}_constrained_synthesis'
+            self.assertIn(label,by_name)
+            self.assertGreater(by_name[label]['duration_ns'],0.)
+            self.assertIn(name,out['solver_reports']['SLSQP_by_seed'])
+            report=out['solver_reports']['SLSQP_by_seed'][name]
+            self.assertEqual(len(report['training_fidelities']),9)
+        passes=[c for c in out['candidates'] if c['train_pass'] and c['heldout_pass']]
+        if passes:
+            self.assertAlmostEqual(
+                by_name[out['winner']]['duration_ns'],
+                min(c['duration_ns'] for c in passes),places=8)
+
     def test_qiskit_reference(self):
         try:
             import qiskit

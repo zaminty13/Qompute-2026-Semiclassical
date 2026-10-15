@@ -14,6 +14,7 @@ ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/'src'))
 from research_synthesis import Experiment, synthesize
 from research_leakage import propagate
+from research_diagnostics import summarize_selection, independent_sample_stress
 from result_provenance import load_report, waveform_id, optimizer_reporting
 
 st.set_page_config(page_title='PulseWise | Research Lab',page_icon='🧬',layout='wide')
@@ -118,10 +119,58 @@ with right:
                Pass='YES' if r['train_pass'] and r['heldout_pass'] else 'NO')
           for r in rows]
     st.dataframe(pd.DataFrame(view),hide_index=True,use_container_width=True)
-    st.caption('TRAIN: nine corner/center conditions. VALIDATION: 96 separate boundary/interior samples used to select candidates and break duration ties. Subsequent dense/random stress tests are separate. No continuous bound is certified.')
+    st.caption('Each *_constrained_synthesis candidate is a separate SLSQP local refinement from the named starting pulse. All use the same constraints and evaluation points. TRAIN: nine corner/center conditions. VALIDATION: 96 separate boundary/interior samples used to select candidates and break duration ties. Subsequent dense/random stress tests are separate. No continuous bound is certified.')
     st.download_button('Download complete research report (JSON)',
                        __import__('json').dumps(report,indent=2),
                        file_name='pulsewise_research_report.json',mime='application/json')
+
+st.subheader('Scientific interpretation of this selection')
+audit = summarize_selection(report)
+if audit['fastest_passing_reference'] is not None:
+    st.write(f"Fastest passing conventional reference: **{audit['fastest_passing_reference']}** "
+             f"({audit['fastest_passing_reference_ns']:.2f} ns). "
+             f"Time reduction relative to that reference: "
+             f"**{audit['reduction_vs_fastest_passing_reference_pct']:.2f}%**. "
+             "The BB1 500 ns comparison is shown separately above.")
+if len(audit['near_tied_candidates']) > 1:
+    st.info(f"Numerical near-tie within {audit['near_tie_ns']:.2f} ns: "
+            + ', '.join(audit['near_tied_candidates'])
+            + '. The named fastest candidate is not demonstrably superior at this precision.')
+if audit['winner_solver_success'] is False:
+    st.warning('Selected candidate passed the advertised sampled fidelity threshold, '
+               'but its optimizer did NOT report successful convergence: '
+               + str(audit['winner_solver_message'])
+               + '. Inspect the solver residuals above before drawing conclusions.')
+elif audit['winner_solver_success'] is True:
+    st.caption('Selected optimizer reported successful termination. This is local, not global optimality.')
+if audit['winner_near_single_axis']:
+    st.info('The winner has nearly identical x-axis segment phases with total unsigned '
+            f'pulse area {audit["winner_total_unsigned_angle_over_pi"]:.5f}π. '
+            'It effectively resembles a slightly underrotated primitive X pulse, '
+            'not a demonstrated BB1 composite-pulse advantage.')
+if audit['differential_evolution_converged'] is False:
+    st.caption('Differential Evolution did not report convergence within its budget. '
+               'Quick/Full changes the DE budget; SLSQP uses up to 65 iterations in either mode.')
+
+with st.expander('Extra post-selection stress test (separate from candidate selection)'):
+    st.caption('Fresh deterministic grid and random locations from the same 2-level '
+               'Lindblad model, excluding training and selection points. '
+               'Does not alter the winner; is not hardware or continuous-bound certification.')
+    if st.button('Run additional post-selection samples'):
+        with st.spinner('Checking fresh uncertainty samples...'):
+            st.session_state['post_selection_audit'] = {
+                'waveform_id': waveform_id(report),
+                'result': independent_sample_stress(report)}
+    cached = st.session_state.get('post_selection_audit')
+    if cached is not None and cached['waveform_id'] == waveform_id(report):
+        extra = cached['result']
+        st.write(f"Evaluated **{extra['total_points']} new uncertainty points**.")
+        st.dataframe(pd.DataFrame([{
+            'Candidate': c['candidate'], 'Worst_fidelity_pct': round(100*c['worst_fidelity'], 5),
+            'Pass': 'YES' if c['pass_stress'] else 'NO',
+            'Failures': c['below_threshold_count']
+        } for c in extra['candidates']]), hide_index=True)
+        st.caption(extra['disclaimer'])
 
 st.divider()
 st.header('1. Discover what the optimizer actually built')
