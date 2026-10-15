@@ -42,7 +42,7 @@ def run_quantum_rings(error=.05,shots=2048):
     token,account=os.environ.get("QR_TOKEN"),os.environ.get("QR_ACCOUNT")
     if bool(token)!=bool(account):
         raise RuntimeError("Set both QR_TOKEN and QR_ACCOUNT or use saved SDK credentials")
-    settings={"backend":"scarlet_quantum_rings","num_qubits":1}
+    settings={"backend":"scarlet_quantum_rings","num_qubits":2}
     if token:
         settings.update({"token":token,"name":account})
     backend=QrBackendV2(**settings)
@@ -52,10 +52,46 @@ def run_quantum_rings(error=.05,shots=2048):
         output.append(backend.run(compiled,shots=shots).result().get_counts().get("0",0)/shots)
     return output
 
+
+def run_quantum_rings_isolated(error=.05,shots=2048):
+    """Run the Quantum Rings SDK in a separate Python process."""
+    import json
+    import subprocess
+    import sys
+    from pathlib import Path
+
+    interpreter=os.environ.get("PULSEWISE_QR_PYTHON",sys.executable)
+    worker=(
+        "import json,sys;"
+        "sys.path.insert(0,sys.argv[1]);"
+        "from quantum_rings_optional import run_quantum_rings;"
+        "print(json.dumps(run_quantum_rings(float(sys.argv[2]),int(sys.argv[3]))))"
+    )
+    try:
+        result=subprocess.run(
+            [interpreter,"-c",worker,str(Path(__file__).resolve().parent),
+             str(error),str(shots)],
+            capture_output=True,text=True,timeout=180
+        )
+    except (OSError,subprocess.TimeoutExpired) as exc:
+        raise RuntimeError(f"Quantum Rings worker failed: {exc}") from exc
+
+    if result.returncode:
+        raise RuntimeError(
+            f"Quantum Rings worker failed: {result.stderr.strip() or result.returncode}"
+        )
+    try:
+        values=json.loads(result.stdout.strip())
+    except ValueError as exc:
+        raise RuntimeError("Invalid Quantum Rings worker output") from exc
+    if not isinstance(values,list) or len(values)!=len(DEPTHS):
+        raise RuntimeError("Unexpected Quantum Rings result count")
+    return values
+
 def compare(error=.05,shots=2048,run_rings=False):
     theory=[expected_probability(n,error) for n in DEPTHS]
     aer=run_aer(error,shots)
-    rings=run_quantum_rings(error,shots) if run_rings else None
+    rings=run_quantum_rings_isolated(error,shots) if run_rings else None
     return [{"depth":n,"theory":theory[i],"aer":aer[i],
              "quantum_rings":rings[i] if rings is not None else None}
             for i,n in enumerate(DEPTHS)]
