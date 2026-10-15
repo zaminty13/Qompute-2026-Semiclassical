@@ -218,23 +218,28 @@ def synthesize(ex: Experiment=Experiment(), *, maxiter=16,
             maxiter=maxiter,popsize=popsize,polish=False,
             seed=ex.seed,init='sobol',tol=.001,updating='immediate',workers=1)
         proposals.append(('differential_evolution', result.x))
-        # Local constrained synthesis starts from a *feasible calibrated BB1*.
-        # Constraints apply at every TRAIN point. It is independently checked
-        # against the validation grid used for candidate selection.
+        # Apply the same bounded SLSQP minimization to all three starting
+        # controls. These are distinct local searches, not globally optimal gates.
+        # Keeping BB1's historical label preserves saved benchmark provenance.
         from scipy.optimize import minimize
-        adjusted_seed=seeds[0].copy()
-        adjusted_seed[:5] /= (1+ex.amplitude_center)
         def fidelity_constraint(x):
             return evaluate(_decode(x),ex,train)-min(1.,ex.min_fidelity+3e-5)
-        refined = minimize(lambda x: .01*sum(x[:5]), adjusted_seed,
-            method='SLSQP', bounds=bounds,
-            constraints=[{'type':'ineq','fun':fidelity_constraint},
-                         {'type':'ineq','fun':lambda x: ex.angle_budget_pi-sum(x[:5])}],
-            options={'maxiter':65,'ftol':1e-8})
-        proposals.append(('BB1_constrained_synthesis',refined.x))
+        refinements = {}
+        for name, starting_seed in zip(('BB1', 'primitive', 'CORPSE'), seeds):
+            adjusted_seed = starting_seed.copy()
+            adjusted_seed[:5] /= (1+ex.amplitude_center)
+            refined = minimize(lambda x: .01*sum(x[:5]), adjusted_seed,
+                method='SLSQP', bounds=bounds,
+                constraints=[{'type':'ineq','fun':fidelity_constraint},
+                             {'type':'ineq','fun':lambda x: ex.angle_budget_pi-sum(x[:5])}],
+                options={'maxiter':65,'ftol':1e-8})
+            label = f'{name}_constrained_synthesis'
+            proposals.append((label,refined.x))
+            refinements[name] = _solver_record(refined,ex,train,bounds)
         solver_reports = {
             'differential_evolution': _solver_record(result, ex, train, bounds),
-            'SLSQP': _solver_record(refined, ex, train, bounds),
+            'SLSQP': refinements['BB1'],
+            'SLSQP_by_seed': refinements,
         }
     candidates=[]
     for label,vec in proposals:

@@ -118,7 +118,7 @@ with right:
                Pass='YES' if r['train_pass'] and r['heldout_pass'] else 'NO')
           for r in rows]
     st.dataframe(pd.DataFrame(view),hide_index=True,use_container_width=True)
-    st.caption('TRAIN: nine corner/center conditions. VALIDATION: 96 separate boundary/interior samples used to select candidates and break duration ties. Subsequent dense/random stress tests are separate. No continuous bound is certified.')
+    st.caption('Each *_constrained_synthesis candidate is a separate SLSQP local refinement from the named starting pulse. All use the same constraints and evaluation points. TRAIN: nine corner/center conditions. VALIDATION: 96 separate boundary/interior samples used to select candidates and break duration ties. Subsequent dense/random stress tests are separate. No continuous bound is certified.')
     st.download_button('Download complete research report (JSON)',
                        __import__('json').dumps(report,indent=2),
                        file_name='pulsewise_research_report.json',mime='application/json')
