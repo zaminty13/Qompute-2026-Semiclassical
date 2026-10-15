@@ -40,7 +40,7 @@ def verify_results(root, report, path=SUMMARY_PATH):
     else:
         manifest = json.loads((root / MANIFEST_PATH).read_text(encoding='utf-8'))
         if (manifest['waveform_id'] != expected or
-                manifest['files'].get(path.as_posix()) != hashlib.sha256(raw).hexdigest()):
+                manifest['files'].get(path.as_posix()) != hashlib.sha256(raw.replace(b'\r\n', b'\n')).hexdigest()):
             raise ValueError('Legacy results do not match the reviewed waveform/configuration or file hash. Generate matching results before displaying them.')
     if path == SUMMARY_PATH and results['config'] != report['config']:
         raise ValueError('Saved results have an incompatible simulation configuration.')

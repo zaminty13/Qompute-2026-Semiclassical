@@ -43,6 +43,27 @@ class ProvenanceTests(unittest.TestCase):
             verify_results(ROOT,old)
         self.assertEqual(optimizer_reporting(self.report)['status'],'unavailable')
 
+    def test_legacy_checkout_line_endings_preserve_validation(self):
+        with tempfile.TemporaryDirectory() as folder:
+            root = Path(folder)
+            (root/MANIFEST_PATH).parent.mkdir(parents=True)
+            (root/MANIFEST_PATH).write_bytes((ROOT/MANIFEST_PATH).read_bytes())
+            for path in (SUMMARY_PATH, Path('results/option_b/qiskit_aer_validation.json')):
+                (root/path).parent.mkdir(parents=True, exist_ok=True)
+                lf = (ROOT/path).read_bytes().replace(b'\r\n', b'\n')
+                for raw in (lf, lf.replace(b'\n', b'\r\n')):
+                    (root/path).write_bytes(raw)
+                    self.assertEqual(verify_results(root, self.report, path), json.loads(lf))
+                    self.assertEqual((root/path).read_bytes(), raw)
+                changed = json.loads(lf)
+                if path == SUMMARY_PATH:
+                    changed['depth_results'][0]['success_probability'] += .001
+                else:
+                    changed['shots_per_circuit'] += 1
+                (root/path).write_text(json.dumps(changed), encoding='utf-8')
+                with self.assertRaisesRegex(ValueError, 'file hash'):
+                    verify_results(root, self.report, path)
+
     def test_changed_or_missing_legacy_results_rejected(self):
         with tempfile.TemporaryDirectory() as folder:
             root=Path(folder)

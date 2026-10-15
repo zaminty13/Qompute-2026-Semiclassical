@@ -140,3 +140,7 @@ The [official Track 3 challenge](https://github.com/sandraalhames/Qompute-2026#y
 | Improvement, cost and implications | Circuit table above, [stress checks](results/option_b/optimizer_stress_test.csv), model limitations |
 
 The challenge does not mandate standard Clifford RB. Technical evidence does not complete the submission: the [official instructions](https://github.com/sandraalhames/Qompute-2026#submission-details-and-challenges) also require a 5–10-minute video and repository submission. No presentation link is supplied here. See [third-party notices](THIRD_PARTY_NOTICES.md) and Git history for software attribution and contributions; public visibility does not assign a license to the team's source.
+
+## Acknowledgement
+
+Generative AI was utilized in this work.
